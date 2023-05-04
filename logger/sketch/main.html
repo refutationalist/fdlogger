@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Logger Main Window Sketch</title>
+	<link rel="stylesheet" type="text/css" href="logger.css" />
+</head>
+<body>
+
+
+<div id="entrybox">
+	
+	<div id="login">
+		<label for="handle">Your Name:</label>
+		<input type="text" id="handle" value="Someone" />
+	</div>
+
+
+	<ul id="radioinput" class="">
+		<li>
+			<label for="freq">Freq:</label>
+			<input type="text" id="freq" value="146520000" /> Hz
+		</li>
+
+		<li>
+			<label for="mode">Mode: </label>
+			<select id="mode">
+				<option>CW</option>
+				<option>AM</option>
+				<option>FM</option>
+				<option>USB</option>
+				<option>LSB</option>
+				<option>DIG</option>
+			</select>
+		</li>
+
+		<li>
+			<label for="power">Power: </label>
+			<input type="text" id="power" value="100" /> W
+		</li>
+	</ul>
+
+	<textarea id="entry"></textarea>
+
+	<div id="radioselect">
+		<label for="radio">Radio:</label>
+		<select id="radio">
+			<option>MANUAL</option>
+			<option>becky</option>
+			<option>sam</option>
+			<option>kris</option>
+			<option>freestation</option>
+			<option>706-10m</option>
+			<option>107-6m</option>
+		</select>
+	</div>
+			
+
+</div>
+
+<div id="parsebox">
+	<div id="parseinner" class="good">
+		<div>
+			<label>Status:</label>
+			<span id="status">Waiting</span>
+		</div>
+		<div id="parsed">
+			<span id="csign">KG7FZH</span>,
+			<span id="exchange">20AB-WWA</span>
+		</div>
+		<ul>
+			<li>
+				<label>Name:</label>
+				<span id="cbookname">Rebecca Friedman</span>
+			</li>
+
+			<li>
+				<label>Location:</label>
+				<span id="cbookloc">Tacoma, WA</span>
+			</li>
+
+			<li>
+				<label>Transmitters:</label>
+				<span id="transmitters">20</span>
+			</li>
+			
+			<li>
+				<label>Class:</label>
+				<span id="class">AB &mdash; Group Portable, Battery (QRP)</span>
+			</li>
+
+			<li>
+				<label>Zone:</label>
+				<span id="zone">WWA &mdash; Western Washington</span>
+			</li>
+
+		</ul>
+	</div>
+</div>
+
+<div id="us">
+	N9MII is 5A-WWA
+</div>
+
+<div id="clock">
+	00:00:00 UTC
+</div>
+
+<div id="logbox">
+
+	<div id="history">
+		<table>
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Call</th>
+					<th>Exchange</th>
+					<th>Band</th>
+					<th>Frequency</th>
+					<th>Mode</th>
+					<th>Power</th>
+					<th>Op</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- standard log line -->
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<!-- log line with note -->
+				<tr class="hasfollow">
+					<td>2023-12-31 00:00:00</td>
+					<td>KD9GU</td>
+					<td>10A-DX</td>
+					<td>160m</th>
+					<td>1805 kHz</td>
+					<td>CW</td>
+					<td>100</td>
+					<td>Sam</td>
+				</tr>
+				<tr class="isfollow">
+					<td colspan="8">
+						<!-- <div>&#8593; Note &#8593;</div> -->
+						<label>Note for Above Entry: </label>
+						Hopefully, these notes will be rather short.   But the schema allows for up to 2k.
+					</td>
+				</td>
+
+				<!-- some filler -->
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				
+				
+				<!-- solo note -->
+				<tr class="solonote">
+					<td colspan="8">
+						<div>
+							<label>Note from HighWatch:</label>
+							FT-8 RX on 6m: [ K7LED 12-WWA ]  Consider working highband radios.
+						</div>
+					</td>
+				</tr>
+
+				<!-- lots more filler -->
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+				<tr>
+					<td>2023-12-31 00:00:00</td>
+					<td>N0CALL</td>
+					<td>1D-IL</td>
+					<td>40m</th>
+					<td>7777 kHz</td>
+					<td>USB</td>
+					<td>100</td>
+					<td>Becky</td>
+				</tr>
+
+			</tbody>
+		</table>
+	</div>
+
+</div>
+	
+</body>
+</html>

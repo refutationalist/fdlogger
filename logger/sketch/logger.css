@@ -1,0 +1,240 @@
+@font-face {
+	font-family: "Red Hat Mono";
+	src: local("Red Hat Mono"), url("RedHatMono.woff2") format("woff2");
+}
+
+/* font sizes */
+:root {
+	--base-font-size: 2vmin;
+
+	--body-bg: #1e1d33;
+	--text-color: #e7e7e7;
+	--input-bg: black;
+	--input-border: #888888;
+	--label-color: #fbfaba;
+
+	--parse-neutral: var(--body-bg);
+	--parse-good: #72a17e;
+	--parse-bad: red;
+
+	--divider-bg-color: #478266;
+	--divider-text-color: #fbfaba;
+
+	--table-border: #888888;
+	--table-th-text-color: #fbfaba;
+	--table-th-bg-one: #478266;
+	--table-th-bg-two: #72A17E;
+	--table-altrow-color: rgba(0,0,0,0.75);
+	--solo-note-color: #884444;
+
+
+}
+
+body, input, textarea, select {
+	font-size: var(--base-font-size);
+	font-family: "Red Hat Mono";
+	font-weight: 500;
+	
+}
+#parsed {
+	font-size: calc(var(--base-font-size) + 1em);
+}
+#parseinner ul {
+	font-size: calc(var(--base-font-size) - .10em);
+}
+#us, #clock {
+	font-size: calc(var(--base-font-size) + 1.2em);
+}
+
+
+
+/* main design */
+body {
+	margin: 0;
+	font-family: "Red Hat Mono";
+	font-weight: 500;
+
+	width: 100vw;
+	height: 100vh;
+
+	display: grid;
+	grid-template-rows: 30vh 8vh 62vh;
+	grid-template-columns: 50vw 50vw;
+
+	background-color: var(--body-bg);
+	color: var(--text-color);
+
+}
+
+
+input, textarea, select {
+	border-radius: 4px;
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	border: 1px solid var(--input-border);
+	
+}
+
+label {
+	color: var(--label-color);
+}
+
+	
+
+
+
+
+/* entry box */
+
+#entrybox {
+	padding: 1vmin;
+}
+#login {
+	margin-bottom: 1vh;
+}
+
+#radioinput {
+	text-align: center;
+	margin: 0 0 1vh 0;
+	list-style: none;
+	padding: 0;
+}
+#radioinput > li {
+	display: inline-block;
+}
+#freq {
+	width: 8vw;
+}
+#power {
+	width: 4vw;
+}
+
+#radioinput.locked input, #radioinput.locked select {
+	background: none;
+	border: none;
+}
+
+#entry {
+	width: 48vw;
+	height: 15vh;
+}
+
+#radioselect {
+	margin-top: 1vh;
+	text-align: right;
+}
+
+
+#logbox {
+	grid-row: 3 / 4;
+	grid-column: 1 / 3;
+
+}
+
+/* parsing box */
+
+#parseinner {
+	margin-left: 2vw;
+	width: 43vw;
+
+	margin-top: 2vh;
+	height: 23vh;
+
+	border-radius: 2vmin;
+
+	padding: 1vh 1vw;
+}
+#parsed {
+	text-align: center;
+}
+
+#parseinner ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	border: .5vmin solid var(--parse-neutral);
+}
+#parseinner.good {
+	border: .5vmin solid var(--parse-good);
+}
+#parseinner.bad {
+	border: .5vmin solid var(--parse-bad);
+}
+
+#parseinner ul li label {
+	display: inline-block;
+	width: 33%;
+	text-align: right;
+}
+
+/* midline */
+#us, #clock {
+	background-color: var(--divider-bg-color);
+	color: var(--divider-text-color);
+	line-height: 8vh;
+}
+#us {
+	padding-left: 2vw;
+}
+#clock {
+	text-align: right;
+	padding-right: 2vw;
+}
+
+/* log history */
+
+#logbox {
+	padding-top: 2vh;
+	padding-left: 10vw;
+	padding-right: 10vw;
+}
+
+#history {
+	overflow-y: auto;
+	height: 58vh;
+	width: 80vw;
+	border-bottom: 1px solid var(--table-border);
+}
+#history table {
+	border-collapse: collapse;
+	width: 100%;
+}
+#history td, #history th {
+	border: 1px solid var(--table-border);
+}
+#history td {
+	padding: .3vmin;
+}
+
+#history thead tr th {
+	position: sticky;
+	top: 0;
+	color: var(--table-th-text-color);
+	background-color: var(--table-th-bg-one);
+}
+#history thead tr th:nth-child(even) {
+	background-color: var(--table-th-bg-two);
+	
+}
+
+#history tbody tr:nth-child(even) {
+	background-color: var(--table-altrow-color);
+}
+#history tr.hasfollow, #history tr.hasfollow td {
+	border-bottom: none;
+}
+#history tr.isfollow, #history tr.isfollow td {
+	border-top: none;
+}
+
+#history tr.solonote td div {
+	border: 1px solid var(--table-border);
+	background-color: var(--solo-note-color);
+	margin: 1vh 1vw;
+	padding: 1vh 1vw;
+	border-radius: .5vmin;
+
+}
+
+
+
