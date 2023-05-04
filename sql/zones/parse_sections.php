@@ -76,7 +76,7 @@ switch (@$argv[1]) {
 		}
 
 		echo 
-			"INSERT INTO fdzones(code, name, area) VALUES\n".
+			"INSERT INTO fdzone(code, name, area) VALUES\n".
 			join(",\n", $subq).
 			";\n";
 
