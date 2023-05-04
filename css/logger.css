@@ -1,41 +1,4 @@
-@font-face {
-	font-family: "Red Hat Mono";
-	src: local("Red Hat Mono"), url("RedHatMono.woff2") format("woff2");
-}
 
-/* font sizes */
-:root {
-	--base-font-size: 2vmin;
-
-	--body-bg: #1e1d33;
-	--text-color: #e7e7e7;
-	--input-bg: black;
-	--input-border: #888888;
-	--label-color: #fbfaba;
-
-	--parse-neutral: var(--body-bg);
-	--parse-good: #72a17e;
-	--parse-bad: red;
-
-	--divider-bg-color: #478266;
-	--divider-text-color: #fbfaba;
-
-	--table-border: #888888;
-	--table-th-text-color: #fbfaba;
-	--table-th-bg-one: #478266;
-	--table-th-bg-two: #72A17E;
-	--table-altrow-color: rgba(0,0,0,0.75);
-	--solo-note-color: #884444;
-
-
-}
-
-body, input, textarea, select {
-	font-size: var(--base-font-size);
-	font-family: "Red Hat Mono";
-	font-weight: 500;
-	
-}
 #parsed {
 	font-size: calc(var(--base-font-size) + 1em);
 }
@@ -47,23 +10,13 @@ body, input, textarea, select {
 }
 
 
-
 /* main design */
 body {
-	margin: 0;
-	font-family: "Red Hat Mono";
-	font-weight: 500;
-
 	width: 100vw;
 	height: 100vh;
-
 	display: grid;
 	grid-template-rows: 30vh 8vh 62vh;
 	grid-template-columns: 50vw 50vw;
-
-	background-color: var(--body-bg);
-	color: var(--text-color);
-
 }
 
 
@@ -196,30 +149,14 @@ label {
 	border-bottom: 1px solid var(--table-border);
 }
 #history table {
-	border-collapse: collapse;
 	width: 100%;
-}
-#history td, #history th {
-	border: 1px solid var(--table-border);
-}
-#history td {
-	padding: .3vmin;
 }
 
 #history thead tr th {
 	position: sticky;
 	top: 0;
-	color: var(--table-th-text-color);
-	background-color: var(--table-th-bg-one);
-}
-#history thead tr th:nth-child(even) {
-	background-color: var(--table-th-bg-two);
-	
 }
 
-#history tbody tr:nth-child(even) {
-	background-color: var(--table-altrow-color);
-}
 #history tr.hasfollow, #history tr.hasfollow td {
 	border-bottom: none;
 }

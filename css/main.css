@@ -1,0 +1,78 @@
+@font-face {
+	font-family: "Red Hat Mono";
+	src: local("Red Hat Mono"), url("../ttf/RedHatMono.woff2") format("woff2");
+}
+
+:root {
+	--base-font-size: 2vmin;
+}
+
+
+
+body, input, textarea, select {
+	font-size: var(--base-font-size);
+	font-family: "Red Hat Mono";
+	font-weight: 500;
+	
+}
+
+
+
+/* main design */
+body {
+	margin: 0;
+	font-family: "Red Hat Mono";
+	font-weight: 500;
+
+
+	background-color: var(--body-bg);
+	color: var(--text-color);
+
+}
+
+a {
+	color: var(--link-color);
+}
+
+a:visited {
+	color: var(--link-visited-color);
+}
+
+input, textarea, select {
+	border-radius: 4px;
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	border: 1px solid var(--input-border);
+	
+}
+
+label {
+	color: var(--label-color);
+}
+
+
+table {
+	border-collapse: collapse;
+	border: 1px solid var(--table-border);
+}
+td, th {
+	border: 1px solid var(--table-border);
+}
+th {
+	color: var(--table-th-text-color);
+	background-color: var(--table-th-bg-one);
+}
+th:nth-child(even) {
+	background-color: var(--table-th-bg-two);
+	
+}
+tbody tr:nth-child(even) {
+	background-color: var(--table-altrow-color);
+}
+td {
+	padding: .3vmin;
+}
+
+
+
+

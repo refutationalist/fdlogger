@@ -1,0 +1,65 @@
+
+body {
+	font-size: calc(var(--base-font-size) + 0.3em);
+}	
+
+body > div {
+	padding: 0 5vw;
+	margin-bottom: 33vh;
+}
+
+ul > li {
+	margin: 1vh auto;
+
+}
+
+body > div > a.back  {
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	font-size: calc(var(--base-font-size) + 0.5em);
+	margin-top: 4vh;
+}
+
+#abbrev ul span {
+	color: var(--label-color);
+}
+
+#phonetic ul {
+	list-style: none;
+	border: 0;
+	padding: 0;
+
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+
+	width: 80%;
+	margin-left: 10%;
+
+
+}
+#phonetic ul li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	line-height: 200%;
+
+	font-size: calc(var(--base-font-size) + 0.4em);
+	border-bottom: 1px solid var(--table-border);
+	
+}
+#phonetic ul li span {
+	font-weight: 700;
+	color: var(--label-color);
+	
+
+}
+
+
+#ktqa img { 
+	display: block;
+	width: 20vmin;
+	height: 20vmin;
+	margin: 1vh auto;
+
+}

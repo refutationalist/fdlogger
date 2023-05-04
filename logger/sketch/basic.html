@@ -5,113 +5,9 @@
 	<title>Logger Main Window Sketch</title>
 	<link rel="stylesheet" type="text/css" href="../css/colors.css" />
 	<link rel="stylesheet" type="text/css" href="../css/main.css" />
-	<link rel="stylesheet" type="text/css" href="../css/logger.css" />
 </head>
 <body>
-
-
-<div id="entrybox">
-	
-	<div id="login">
-		<label for="handle">Your Name:</label>
-		<input type="text" id="handle" value="Someone" />
-	</div>
-
-
-	<ul id="radioinput" class="">
-		<li>
-			<label for="freq">Freq:</label>
-			<input type="text" id="freq" value="146520000" /> Hz
-		</li>
-
-		<li>
-			<label for="mode">Mode: </label>
-			<select id="mode">
-				<option>CW</option>
-				<option>AM</option>
-				<option>FM</option>
-				<option>USB</option>
-				<option>LSB</option>
-				<option>DIG</option>
-			</select>
-		</li>
-
-		<li>
-			<label for="power">Power: </label>
-			<input type="text" id="power" value="100" /> W
-		</li>
-	</ul>
-
-	<textarea id="entry"></textarea>
-
-	<div id="radioselect">
-		<label for="radio">Radio:</label>
-		<select id="radio">
-			<option>MANUAL</option>
-			<option>becky</option>
-			<option>sam</option>
-			<option>kris</option>
-			<option>freestation</option>
-			<option>706-10m</option>
-			<option>107-6m</option>
-		</select>
-	</div>
-			
-
-</div>
-
-<div id="parsebox">
-	<div id="parseinner" class="good">
-		<div>
-			<label>Status:</label>
-			<span id="status">Waiting</span>
-		</div>
-		<div id="parsed">
-			<span id="csign">KG7FZH</span>,
-			<span id="exchange">20AB-WWA</span>
-		</div>
-		<ul>
-			<li>
-				<label>Name:</label>
-				<span id="cbookname">Rebecca Friedman</span>
-			</li>
-
-			<li>
-				<label>Location:</label>
-				<span id="cbookloc">Tacoma, WA</span>
-			</li>
-
-			<li>
-				<label>Transmitters:</label>
-				<span id="transmitters">20</span>
-			</li>
-			
-			<li>
-				<label>Class:</label>
-				<span id="class">AB &mdash; Group Portable, Battery (QRP)</span>
-			</li>
-
-			<li>
-				<label>Zone:</label>
-				<span id="zone">WWA &mdash; Western Washington</span>
-			</li>
-
-		</ul>
-	</div>
-</div>
-
-<div id="us">
-	N9MII is 5A-WWA
-</div>
-
-<div id="clock">
-	00:00:00 UTC
-</div>
-
-<div id="logbox">
-
-	<div id="history">
-		<table>
+	<table>
 			<thead>
 				<tr>
 					<th>Date</th>
@@ -612,9 +508,6 @@
 
 			</tbody>
 		</table>
-	</div>
 
-</div>
-	
 </body>
-</html>
+</head>

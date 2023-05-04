@@ -1,0 +1,34 @@
+/*
+ * 1E1D33
+ * 478266
+ * 72A17E
+ * FBFABA
+ * 90E2DC
+ */
+:root {
+
+	--body-bg: #1e1d33;
+	--text-color: #e7e7e7;
+	--link-color: #fbfaba;
+	--link-visited-color: var(--link-color);
+
+	--input-bg: black;
+	--input-border: #888888;
+	--label-color: #fbfaba;
+
+	--parse-neutral: var(--body-bg);
+	--parse-good: #72a17e;
+	--parse-bad: red;
+
+	--divider-bg-color: #478266;
+	--divider-text-color: #fbfaba;
+
+	--table-border: #888888;
+	--table-th-text-color: #fbfaba;
+	--table-th-bg-one: #478266;
+	--table-th-bg-two: #72A17E;
+	--table-altrow-color: rgba(0,0,0,0.75);
+	--solo-note-color: #884444;
+
+
+}

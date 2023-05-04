@@ -4,12 +4,14 @@ DROP TABLE IF EXISTS `fdnote`;
 DROP TABLE IF EXISTS `fdcallbook`;
 DROP TABLE IF EXISTS `fdband`;
 DROP TABLE IF EXISTS `fdradio`;
+DROP TABLE IF EXISTS `fdzones`;
 
 CREATE TABLE fdlog (
 	lid		BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	freq	BIGINT UNSIGNED NOT NULL,
 	band    CHAR(5) NOT NULL DEFAULT 'none',
 	mode	ENUM('CW', 'AM', 'FM', 'USB', 'LSB', 'DIG') NOT NULL,
+	power	TINYINT	UNSIGNED NOT NULL,
 	csign	VARCHAR(32) NOT NULL,
 	tx		TINYINT UNSIGNED NOT NULL,
 	class	CHAR(2)	NOT NULL,
@@ -28,6 +30,7 @@ CREATE TABLE fdnote (
 	PRIMARY KEY pk_fdnote(nid)
 ) ENGINE=InnoDB;
 
+/* populated via import scripts in sql/ */
 CREATE TABLE fdcallbook (
 	cbid	BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	csign	VARCHAR(32) NOT NULL,
@@ -38,6 +41,16 @@ CREATE TABLE fdcallbook (
 	INDEX idx_fdcallbook_csign(csign)
 ) ENGINE=InnoDB;
 
+
+/* populated via import scripts in sql/ */
+CREATE TABLE fdzones (
+	czid	BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	code	CHAR(3) NOT NULL,
+	name	VARCHAR(128) NOT NULL,
+	area	CHAR(1) NOT NULL,
+	PRIMARY KEY pk_fdzones(czid)
+) ENGINE=InnoDB;
+
 /* only field day bands and bands we have the equipment to work.
    I do have that spectra, probably not gonna try it but you never know.
    and maybe we could do a wifi qso?  I have no idea. 
@@ -46,7 +59,7 @@ CREATE TABLE fdcallbook (
 CREATE TABLE fdband (
 	low		BIGINT UNSIGNED NOT NULL,
 	high	BIGINT UNSIGNED	NOT NULL,
-	label   CHAR(5) NOT NULL,
+	label   CHAR(5) NOT NULL
 ) ENGINE=InnoDB;
 INSERT INTO fdband VALUES
 	(1800000,    2000000,    "160m"),
@@ -87,10 +100,10 @@ NEW.band = IFNULL((SELECT label FROM fdband WHERE NEW.freq BETWEEN low AND high 
 DROP VIEW IF EXISTS `fdlogdisplay`;
 
 CREATE VIEW fdlogdisplay AS SELECT
-	freq, band, mode, csign, CONCAT(tx, class, '-', sec) AS exch, handle, logged, notes
+	freq, band, mode, power, csign, CONCAT(tx, class, '-', sec) AS exch, handle, logged, notes
 FROM fdlog
 UNION SELECT
-	NULL, NULL, NULL, NULL, NULL, handle, logged, notes
+	NULL, NULL, NULL, NULL, NULL, NULL, handle, logged, notes
 FROM fdnote
 ORDER BY logged DESC;
 
