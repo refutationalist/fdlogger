@@ -18,7 +18,7 @@ class config {
 
 		if (!is_readable($file)) {
 			/* FIXME: make work with web */
-			fprintf(STDERR, "'%s' is not readable\n", $file);
+			printf("'%s' is not readable\n", $file);
 			exit(1);
 		}
 
@@ -26,7 +26,7 @@ class config {
 		$raw = parse_ini_file($file, true, INI_SCANNER_TYPED);
 		if ($raw === false) {
 			/* FIXME: make work with web */
-			fprintf(STDERR, "'%s' is nonsensical.\n", $file);
+			printf("'%s' is nonsensical\n", $file);
 			exit(1);
 		}
 

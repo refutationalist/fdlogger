@@ -2,7 +2,7 @@
 
 namespace logger;
 
-class test extends base {
+final class test extends base {
 
 	public function write() {
 

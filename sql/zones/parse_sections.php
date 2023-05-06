@@ -75,8 +75,10 @@ switch (@$argv[1]) {
 			}
 		}
 
-		echo 
+		echo
 			"INSERT INTO fdzone(code, name, area) VALUES\n".
+			// only really needed here for FK purposes
+			"\t('DX', 'Outside US/Canada', 'X'),\n".
 			join(",\n", $subq).
 			";\n";
 
