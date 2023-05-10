@@ -13,7 +13,6 @@ class user extends base {
 
 		int    $freq,
 		string $mode,
-		int    $power,
 
 		string $handle,
 		null|string $notes = ""
@@ -21,30 +20,13 @@ class user extends base {
 
 
 		// test for valid class
-		$vc = false;
-		foreach ($this->getclasses() as $c=>$crap) {
-			if ($class === $c) {
-				$vc = true;
-				break;
-			}
-		}
-
-		if ($vc == false) return([false, "add: invalid class"]);
-
+		if (!$this->inclasses($class)) return([false, "add: invalid class"]);
 
 		// test for valid zone
-		$vz = false;
-		foreach ($this->getzones() as $z=>$crap) {
-			if ($zone === $z) {
-				$vz = true;
-				break;
-			}
-		}
-
-		if ($vz == false) return([false, "add: invalid zone"]);
+		if (!$this->inzones($zone)) return([false, "add: invalid zone"]);
 
 		// test for valid mode
-		if (!in_array($mode, \config::$modes)) return([false, "add: invalid mode"]);
+		if (!$this->inmodes($mode)) return([false, "add: invalid mode"]);
 
 		
 		// do I test for valid callsign?
@@ -62,9 +44,9 @@ class user extends base {
 		if ($this->query(
 			"INSERT INTO fdlog SET ".
 			"csign = '%s', tx = %d, class = '%s', zone = '%s', freq = %d, mode = '%s', ".
-			"power = %d, handle = '%s', notes = %s",
+			"handle = '%s', notes = %s",
 			$call, $tx, $this->quote($class), $this->quote($zone), $freq, $this->quote($mode),
-			$power, $handle, $sql_notes
+			$handle, $sql_notes
 		)) {
 			return([true, 'add: submitted']);
 		} else {
@@ -106,6 +88,35 @@ class user extends base {
 			return([true, $rows]);
 		}
 
+
+	}
+
+	public function since(int $logid, int $noteid): array {
+
+		$rows = $this->fetchall(
+			"SELECT * FROM fdlogdisplay WHERE (kind = 'log' AND id > %d) OR (kind = 'note' AND id > %d)",
+			$logid,
+			$noteid
+		);
+
+		return( [ true, $rows ] );
+
+	}
+
+	public function dupe(string $call, string $freq, string $mode): array {
+
+		return([ 
+			true,
+			$this->fetchall(
+				"SELECT csign, exch, mode FROM fdlogdisplay ".
+				"WHERE csign = '%s' ".
+				"AND band = (SELECT code FROM fdband WHERE low < %d AND high > %d LIMIT 1) ".
+				"AND mode IN((SELECT code FROM fdmode WHERE cab = (SELECT cab FROM fdmode WHERE code = '%s')))",
+				$this->quote($call),
+				$freq, $freq,
+				$this->quote($mode)
+			)
+		]);
 
 	}
 

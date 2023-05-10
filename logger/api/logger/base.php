@@ -17,9 +17,8 @@ class base {
 		);
 	}
 
-	public function servertime(): array {
-		return [true, microtime(true)];
-	}
+
+	/* Zone functions */
 
 	protected function getzones(bool $by_area = false): array {
 
@@ -43,9 +42,20 @@ class base {
 
 		return $return;
 	}
+
+	protected function inzones(string $in): bool {
+		foreach ($this->getzones() as $z=>$crap)
+			if ($in === $z) return true;
+
+		return false;
+	}
+
 	public function zones(): array {
 		return [ true, $this->getzones() ];
 	}
+
+
+	/* Class functions */
 
 	protected function getclasses(): array {
 
@@ -58,9 +68,88 @@ class base {
 		return $return;
 
 	}
+
+	protected function inclasses(string $in): bool {
+		foreach ($this->getclasses() as $c=>$crap)
+			if ($in === $c) return true;
+
+		return false;
+	}		
+
 	public function classes(): array {
 		return [ true, $this->getclasses() ];
 	}
+
+
+	/* Mode classes */
+
+	protected function getmodes(): array {
+
+		$return = [];
+
+		foreach ($this->fetchall("SELECT code FROM fdmode ORDER BY ord") as $c) {
+			$return[] = $c["code"];
+		}
+
+		return $return;
+
+	}
+
+	protected function inmodes(string $in): bool {
+
+		foreach ($this->getmodes() as $m)
+			if ($m === $in) return true;
+
+		return false;
+
+	}
+
+	public function modes(): array {
+
+		return [ true, $this->getmodes() ];
+	}
+
+
+	/* other helpers */
+
+	public function radios(): array {
+		$radios = [];
+		foreach ($this->fetchall("SELECT name FROM fdradio") as $r) $radios[] = $r["name"];
+		return ([ true, $radios ]);
+	}
+
+	public function radio(string $name): array {
+
+		$r = $this->fetchall("SELECT name, freq, mode FROM fdradio WHERE name = '%s'", $this->quote($name));
+
+		$return = [false, []];
+
+		if ($r[0]["name"] == $name) $return = [ true, $r[0] ];
+
+		return $return;
+
+
+		
+	}
+
+
+	public function servertime(): array {
+		return [true, microtime(true)];
+	}
+
+	
+	public function callbook(string $call): array {
+		$r = $this->fetchall(
+			"SELECT csign, name, city, state FROM fdcallbook WHERE csign = '%s'",
+			$this->quote($call)
+		);
+
+		return([ true, $r[0] ]);
+	}
+
+
+	/* json processing function */
+
 
 	public function process(): null {
 		
@@ -77,7 +166,7 @@ class base {
 		foreach ((array) $incoming as $id=>$request) {
 
 			$cmd = $request->cmd;
-			$arg = $request->arg;
+			$arg = (@$request->arg) ? $request->arg : [];
 
 			if($cmd == "process") continue;
 
@@ -87,10 +176,10 @@ class base {
 					try {
 						// this is the part where things are done
 						$done = $this->$cmd(...$arg);
-					} catch (logger\Exception $exc) {
+					} catch (\logger_exception $exc) {
 						$done = [ false, 'PHP Exception Thrown: '. $exc->getMessage() ];
 					}
-				} catch (Error $err) {
+				} catch (\Error $err) {
 					$done = [ false, 'PHP code error: '. $err->getMessage() ];
 				}
 

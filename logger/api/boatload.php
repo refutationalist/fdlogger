@@ -39,9 +39,6 @@ class config {
 		@config::$settings->exchange    = (string) $raw["settings"]["exchange"]   ?: "0D-DX";
 		@config::$settings->radiopurge  = (int)    $raw["settings"]["radiopurge"] ?: 300;
 
-		// for some reason I made modes an enum.  was this a good idea?
-		config::$modes = [ 'CW', 'AM', 'FM', 'USB', 'LSB', 'DIG' ];
-
 	}
 
 	public static function dump() {
@@ -95,3 +92,5 @@ spl_autoload_register(function ($class) {
     }
 
 });
+
+class logger_exception extends Exception { }

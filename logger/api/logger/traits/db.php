@@ -1,7 +1,7 @@
 <?php
 namespace logger\traits;
 
-if (!class_exists("mysqli")) throw new \Exception("db trait: mysqli extension not enabled");
+if (!class_exists("mysqli")) throw new \logger_exception("db trait: mysqli extension not enabled");
 
 define('ASSOC', MYSQLI_ASSOC);
 define('NUM', MYSQLI_NUM);
@@ -40,44 +40,52 @@ trait db {
 
 		/* this might change depending on the project */
 		if (gettype(\config::$db) != "object")
-			throw new \Exception("db trait: configuration not available, can't connect to db");
+			throw new \logger_exception("db trait: configuration not available, can't connect to db");
 
 		if (dbc::$con == null) {
 			$success = false;
 		} else {
 			try {
 				$success = dbc::$con->ping();
-			} catch (Exception $e) {
+			} catch (\Exception $e) {
 				$success = false;
 			}
 
 		}
 
 		if (!$success) {
-			dbc::$con = new \mysqli(
-				\config::$db->host,
-				\config::$db->user,
-				\config::$db->pass,
-				\config::$db->name
-			);
-			$success = dbc::$con->ping();
+			try {
+				dbc::$con = new \mysqli(
+					\config::$db->host,
+					\config::$db->user,
+					\config::$db->pass,
+					\config::$db->name
+				);
+				$success = dbc::$con->ping();
+			} catch (\mysqli_sql_exception $e) { 
+				$success = false;
+			}
 		}
 
-		if (!$success) throw new \Exception("db trait: could not connect to database");
+		if (!$success) throw new \logger_exception("db trait: could not connect to database");
 
 	}
 
-	public function query(string $format, ...$variables): \mysqli_result|bool {
+	protected function query(string $format, ...$variables): \mysqli_result|bool {
 
 		$this->dbcheck();
 
 		$sql = (count($variables) > 0) ? vsprintf($format, $variables) : $format;
 		dbc::$last_sql = $sql;
 
-		$res = dbc::$con->query($sql);
+		try {
+			$res = dbc::$con->query($sql);
+		} catch (\mysqli_sql_exception $exc) {
+			throw new \logger_exception($exc->getMessage());
+		}
 
 		if (dbc::$con->error)
-			throw new \Exception(sprintf("db trait: query failure '%s' on SQL: %s", dbc::$con->error, $sql));
+			throw new \logger_exception(sprintf("db trait: query failure '%s' on SQL: %s", dbc::$con->error, $sql));
 
 		$this->querylog();
 		return $res;
@@ -87,7 +95,7 @@ trait db {
 
 
 	/* just for calling stored procedures, mainly */
-	public function multiquery(string $format, ...$variables): array {
+	protected function multiquery(string $format, ...$variables): array {
 
 		$this->dbcheck();
 
@@ -97,7 +105,7 @@ trait db {
 		dbc::$con->multi_query($sql);
 
 		if (dbc::$con->error)
-			throw new \Exception(sprintf("db trait: multiquery fail with error '%s' on SQL: %s", dbc::$con->error, $sql));
+			throw new \logger_exception(sprintf("db trait: multiquery fail with error '%s' on SQL: %s", dbc::$con->error, $sql));
 
 		$results = array();
 
@@ -111,44 +119,44 @@ trait db {
 		return $results;
 	}
 
-	public function fetchall(string $format, ...$variables): array {
+	protected function fetchall(string $format, ...$variables): array {
 		$res = $this->query($format, ...$variables);
 		$return = $res->fetch_all(MYSQLI_ASSOC);
 		$res->free();
 		return $return;
 	}
 
-	public function quote(string $str): string {
+	protected function quote(string $str): string {
 		$this->dbcheck();
 		return dbc::$con->escape_string($str);
 	}
 
-	public function row(\mysqli_result $res, int $method): null|array {
+	protected function row(\mysqli_result $res, int $method): null|array {
 
 		$return = $res->fetch_array($method);
 		if (dbc::$con->error)
-			throw new \Exception("db trait: row retrieve fail '%s'", dbc::$con->error);
+			throw new \logger_exception("db trait: row retrieve fail '%s'", dbc::$con->error);
 
 		return $return;
 	}
 
-	public function ping() {
+	protected function ping() {
 		return dbc::$con->ping();
 	}
 
-	public function insert_id(): int {
+	protected function insert_id(): int {
 		return dbc::$con->insert_id;
 	}
 
-	public function affected_rows(): int {
+	protected function affected_rows(): int {
 		return dbc::$con->affected_rows;
 	}
 
-	public function last_sql(): string {
+	protected function last_sql(): string {
 		return dbc::$last_sql;
 	}
 
-	private function querylog() {
+	protected function querylog() {
 
 		if (\config::$db->querylog == false) return;
 
@@ -166,7 +174,6 @@ trait db {
 
 		fclose($fh);
 	}
-
 
 }
 

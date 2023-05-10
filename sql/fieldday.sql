@@ -5,24 +5,9 @@ DROP TABLE IF EXISTS `fdcallbook`;
 DROP TABLE IF EXISTS `fdband`;
 DROP TABLE IF EXISTS `fdradio`;
 DROP TABLE IF EXISTS `fdzone`;
+DROP TABLE IF EXISTS `fdmode`;
 DROP TABLE IF EXISTS `fdclass`;
 
-CREATE TABLE fdlog (
-	lid		BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	freq	BIGINT UNSIGNED NOT NULL,
-	band    CHAR(5) NOT NULL DEFAULT 'none',
-	mode	ENUM('CW', 'AM', 'FM', 'USB', 'LSB', 'DIG') NOT NULL,
-	power	SMALLINT	UNSIGNED NOT NULL,
-	csign	VARCHAR(32) NOT NULL,
-	tx		TINYINT UNSIGNED NOT NULL,
-	class	CHAR(2)	NOT NULL,
-	zone	CHAR(3) NOT NULL,
-	handle	VARCHAR(64) NOT NULL,
-	notes	VARCHAR(2048),
-	logged	TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	PRIMARY KEY pk_fdlog(lid),
-	INDEX idx_fdlog(logged)
-) ENGINE=InnoDB;
 
 CREATE TABLE fdnote (
 	nid		BIGINT UNSIGNED	NOT NULL AUTO_INCREMENT,
@@ -78,32 +63,92 @@ INSERT INTO fdclass VALUES
    but since band selection is done by trigger there's no reason
    not to include it */
 CREATE TABLE fdband (
+	code    CHAR(5) NOT NULL,
 	low		BIGINT UNSIGNED NOT NULL,
 	high	BIGINT UNSIGNED	NOT NULL,
-	label   CHAR(5) NOT NULL
+	PRIMARY KEY pk_fdband(code)
 ) ENGINE=InnoDB;
 INSERT INTO fdband VALUES
-	(1800000,    2000000,    "160m"),
-	(3500000,    4000000,    "80m"),
-	(7000000,    7300000,    "40m"),
-	(14000000,   14350000,   "20m"),
-	(21000000,   21450000,   "15m"),
-	(28000000,   29700000,   "10m"),
-	(50000000,   54000000,   "6m"),
-	(144000000,  148000000,  "2m"),
-	(222000000,  224000000,  "1.25m"),
-	(420000000,  450000000,  "70cm"),
-	(902000000,  928000000,  "33cm"),
-	(2390000000, 2450000000, "13cm");
+	("160m",  1800000,    2000000),
+	("80m",   3500000,    4000000),
+	("40m",   7000000,    7300000),
+	("20m",   14000000,   14350000),
+	("15m",   21000000,   21450000),
+	("10m",   28000000,   29700000),
+	("6m",    50000000,   54000000),
+	("2m",    144000000,  148000000),
+	("1.25m", 222000000,  224000000),
+	("70cm",  420000000,  450000000),
+	("33cm",  902000000,  928000000),
+	("13cm",  2390000000, 2450000000),
+	("none",  0,          0);
 
 
+CREATE TABLE fdmode (
+	code	CHAR(5)	NOT NULL,
+	cab		CHAR(3) NOT NULL,
+	ord		TINYINT UNSIGNED NOT NULL,
+	PRIMARY KEY pk_fdmode(code)
+) ENGINE=InnoDB;
+INSERT INTO fdmode VALUES
+	("CW",    "CW", 0),
+	("AM",    "PH", 1),
+	("USB",   "PH", 2),
+	("LSB",   "PH", 3),
+	("FM",    "PH", 4),
+	("DIG",   "DG", 5),
+	("PH",    "PH", 6),
+	("FT8",   "DG", 7),
+	("JT8",   "DG", 8),
+	("PSK31", "DG", 9),
+	("RTTY",  "DG", 10),
+	("SSTV",  "DG", 11);
+
+/*
+ fdradio.mode is not a foreign key as we want to be able to set 
+ mode "UNK", which unlocks the mode drop down in the client, allowing
+ the user to set the mode.
+*/
 CREATE TABLE fdradio (
-	name	VARCHAR(32),
+	name	VARCHAR(16),
 	freq	BIGINT UNSIGNED NOT NULL,
-	mode	ENUM('CW', 'AM', 'FM', 'USB', 'LSB', 'DIG') NOT NULL,
+	mode	CHAR(3) NOT NULL,
 	logged	TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY pk_fdradio(name)
 ) ENGINE=MEMORY;
+
+
+CREATE TABLE fdlog (
+	lid		BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	freq	BIGINT UNSIGNED NOT NULL,
+	band    CHAR(5) NOT NULL DEFAULT 'none',
+	mode	CHAR(5) NOT NULL,
+	csign	VARCHAR(32) NOT NULL,
+	tx		TINYINT UNSIGNED NOT NULL,
+	class	CHAR(2)	NOT NULL,
+	zone	CHAR(3) NOT NULL,
+	handle	VARCHAR(64) NOT NULL,
+	notes	VARCHAR(2048),
+	logged	TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY pk_fdlog(lid),
+	INDEX idx_fdlog(logged),
+	CONSTRAINT fk_fdlog_fdmode
+		FOREIGN KEY (mode) REFERENCES fdmode(code)
+		ON UPDATE RESTRICT
+		ON DELETE RESTRICT,
+	CONSTRAINT fk_fdlog_fdclass
+		FOREIGN KEY (class) REFERENCES fdclass(code)
+		ON UPDATE RESTRICT
+		ON DELETE RESTRICT,
+	CONSTRAINT fk_fdlog_fdband
+		FOREIGN KEY (band) REFERENCES fdband(code)
+		ON UPDATE RESTRICT
+		ON DELETE RESTRICT,
+	CONSTRAINT fk_fdlog_fdzone
+		FOREIGN KEY (zone) REFERENCES fdzone(code)
+		ON UPDATE RESTRICT
+		ON DELETE RESTRICT
+) ENGINE=InnoDB;
 
 /* triggers */
 DROP TRIGGER IF EXISTS `fdlog_normalize`;
@@ -115,17 +160,24 @@ SET
 NEW.csign = UPPER(NEW.csign),
 NEW.class = UPPER(NEW.class),
 NEW.zone  = UPPER(NEW.zone),
-NEW.band  = IFNULL((SELECT label FROM fdband WHERE NEW.freq BETWEEN low AND high LIMIT 1), 'none');
+NEW.band  = IFNULL((SELECT code FROM fdband WHERE NEW.freq BETWEEN low AND high LIMIT 1), 'none');
 
 /* views */
 DROP VIEW IF EXISTS `fdlogdisplay`;
 
 CREATE VIEW fdlogdisplay AS SELECT
-	'log', lid, freq, band, mode, power, csign, CONCAT(tx, class, '-', zone) AS exch, handle, logged, notes
+	'log' AS kind,
+	lid AS id,
+	freq,
+	band,
+	mode,
+	csign,
+	CONCAT(tx, class, '-', zone) AS exch,
+	handle,
+	logged,
+	notes
 FROM fdlog
 UNION SELECT
-	'note', nid, NULL, NULL, NULL, NULL, NULL, NULL, handle, logged, notes
+	'note', nid, NULL, NULL, NULL, NULL, NULL, handle, logged, notes
 FROM fdnote
 ORDER BY logged DESC;
-
-

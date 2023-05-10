@@ -28,26 +28,30 @@ final class test extends base {
 		ini_set('memory_limit', -1);
 
 		// get data for fast random
-		$bands = $this->fetchall("SELECT * FROM fdband");
+		$bands = $this->fetchall("SELECT * FROM fdband WHERE code != 'none'");
 		$zones = $this->fetchall("SELECT * FROM fdzone");
 		$class = $this->fetchall("SELECT * FROM fdclass");
+		$modes = $this->fetchall("SELECT * FROM fdmode");
 		$calls = $this->fetchall("SELECT csign FROM fdcallbook");
 		$end   = time();
 		$start = $end - 1209600;
+
+		$times = [];
+		for ($i = 0 ; $i < $logs ; $i++) $times[] = rand($start, $end);
+		sort($times, SORT_NUMERIC);
 
 		$entries = [];
 		for ($i = 0 ; $i < $logs ; $i++) {
 			$band = $bands[ array_rand($bands) ];
 
 			$entries[] = sprintf(
-				"('%s', %d, %d, %d, FROM_UNIXTIME(%d), '%s', '%s', '%s', '%s', %s)",
+				"('%s', %d, %d, FROM_UNIXTIME(%d), '%s', '%s', '%s', '%s', %s)",
 				$calls[ array_rand($calls) ]["csign"], // callsign
 				rand($band["low"], $band["high"]), // frequency
-				rand(5, 1000), // power
 				rand(1,20), // tx
-				rand($start, $end), // time
-				$class[ array_rand($class) ]["code"],
-				\config::$modes[ array_rand(\config::$modes) ], // mode
+				$times[$i], // time
+				$class[ array_rand($class) ]["code"], // class
+				$modes[ array_rand($modes) ]["code"], // mode
 				$zones[ array_rand($zones) ]["code"], // zone
 				'Randmon'.$i, //handle
 				($i % $modnote) ? 'NULL' : "'".$this->quote($this->random_phrase())."'"
@@ -57,7 +61,7 @@ final class test extends base {
 
 		foreach (array_chunk($entries, 100) as $part) {
 			$this->query(
-				"INSERT INTO fdlog(csign, freq, power, tx, logged, class, mode, zone, handle, notes) VALUES".
+				"INSERT INTO fdlog(csign, freq, tx, logged, class, mode, zone, handle, notes) VALUES".
 				join(",\n", $part)
 			);
 		}
@@ -68,6 +72,11 @@ final class test extends base {
 		$end   = time();
 		$start = $end - 1209600;
 
+
+		$times = [];
+		for ($i = 0 ; $i < $notes ; $i++) $times[] = rand($start, $end);
+		sort($times, SORT_NUMERIC);
+
 		$entries = [];
 		for ($i = 0 ; $i < $notes ; $i++) {
 
@@ -75,7 +84,7 @@ final class test extends base {
 				"('%s', '%s', FROM_UNIXTIME(%d))",
 				$this->quote($this->random_phrase(20)),
 				'Ranoted'.$i,
-				rand($start, $end)
+				$times[$i]
 			);
 		}
 
