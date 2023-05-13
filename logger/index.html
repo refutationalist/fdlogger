@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>N9MII Logger</title>
+	<link rel="stylesheet" type="text/css" href="../css/colors.css" />
+	<link rel="stylesheet" type="text/css" href="../css/main.css" />
+	<link rel="stylesheet" type="text/css" href="../css/logger.css" />
+	<script type="text/javascript" src="js/base.js"></script>
+	<script type="text/javascript" src="js/clock.js"></script>
+	<script type="text/javascript" src="js/table.js"></script>
+	<script type="text/javascript" src="js/parse.js"></script>
+	<script type="text/javascript" src="js/input.js"></script>
+</head>
+<body class="covered">
+
+
+<div id="entrybox">
+	
+	<div id="login">
+		<label for="handle">Your Name:</label>
+		<input type="text" id="handle" />
+	</div>
+
+
+	<ul id="radioinput" class="">
+		<li>
+			<label for="freq">Freq:</label>
+			<input type="text" id="freq" /> Hz
+		</li>
+
+		<li>
+			<label for="mode">Mode: </label>
+			<select id="mode">
+			</select>
+		</li>
+
+	</ul>
+
+	<textarea id="entry"></textarea>
+
+	<div id="radioselect">
+		<label for="radio">Radio:</label>
+		<select id="radio">
+		</select>
+	</div>
+			
+
+</div>
+
+<div id="parsebox">
+	<div id="parseinner" class="">
+		<div>
+			<label>Status:</label>
+			<span id="status"></span>
+		</div>
+		<div id="parsed">
+			<span id="call"></span>
+			<span id="exchange"></span>
+			&nbsp;
+		</div>
+		<ul>
+			<li>
+				<label>Name:</label>
+				<span id="cname"></span>
+			</li>
+
+			<li>
+				<label>Location:</label>
+				<span id="cloc"></span>
+			</li>
+
+			<li>
+				<label>Transmitters:</label>
+				<span id="tx"></span>
+			</li>
+			
+			<li>
+				<label>Class:</label>
+				<span id="clss"></span>
+			</li>
+
+			<li>
+				<label>Zone:</label>
+				<span id="zone"></span>
+			</li>
+			<li>
+				<label>Notes:</label>
+				<span id="notes"></span>
+			</li>
+
+		</ul>
+	</div>
+</div>
+
+<div id="us">
+	<span id="ourcall"></span> is <span id="ourexchange"></span>
+</div>
+
+<div id="clock">
+</div>
+
+<div id="logbox">
+
+	<div id="history">
+		<table>
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Call</th>
+					<th>Exchange</th>
+					<th>Band</th>
+					<th>Frequency</th>
+					<th>Mode</th>
+					<th>Op</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+
+</div>
+
+<div id="cover"></div>
+<div id="error">
+	<div>
+		<p>
+			<label>There was an error, see the console for more info:</label>
+			<span id="errortext"></span>
+		</p>
+		<div class="clear">OK</div>
+	</div>
+</div>
+	
+</body>
+</html>

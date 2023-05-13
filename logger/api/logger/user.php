@@ -104,18 +104,19 @@ class user extends base {
 	}
 
 	public function dupe(string $call, string $freq, string $mode): array {
+		$freq = intval($freq);
 
 		return([ 
 			true,
 			$this->fetchall(
-				"SELECT csign, exch, mode FROM fdlogdisplay ".
+				"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
 				"WHERE csign = '%s' ".
-				"AND band = (SELECT code FROM fdband WHERE low < %d AND high > %d LIMIT 1) ".
+				"AND band = (SELECT code FROM fdband WHERE low <= %d AND high >= %d LIMIT 1) ".
 				"AND mode IN((SELECT code FROM fdmode WHERE cab = (SELECT cab FROM fdmode WHERE code = '%s')))",
 				$this->quote($call),
 				$freq, $freq,
 				$this->quote($mode)
-			)
+			)[0]
 		]);
 
 	}

@@ -122,7 +122,8 @@ class base {
 
 		$r = $this->fetchall("SELECT name, freq, mode FROM fdradio WHERE name = '%s'", $this->quote($name));
 
-		$return = [false, []];
+		// we don't want to pop an error if the radio doesn't exist.
+		$return = [true, ["noradio" => true]];
 
 		if ($r[0]["name"] == $name) $return = [ true, $r[0] ];
 
@@ -144,7 +145,22 @@ class base {
 			$this->quote($call)
 		);
 
-		return([ true, $r[0] ]);
+		$return = ($r[0]) ? $r[0] : [ "notfound" => true ];
+
+
+		return([ true, $return ]);
+	}
+
+	public function whoami(): array {
+		return([
+			true,
+			[
+				"call" => \config::$settings->callsign,
+				"exchange" => \config::$settings->exchange,
+				"debug" => \config::$debug
+			]
+		]);
+
 	}
 
 
@@ -185,16 +201,16 @@ class base {
 
 
 				$output[$id] = [
-					"cmd"  => $cmd,
-					"res"  => $done[0],
-					"data" => $done[1]
+					"cmd"     => $cmd,
+					"result"  => $done[0],
+					"data"    => $done[1]
 				];
 
 			} else {
 				$output[$id] = [
-					"cmd" => $cmd,
-					"res" => false,
-					"data" => "command does not exist"
+					"cmd"    => $cmd,
+					"result" => false,
+					"data"   => "command does not exist"
 				];
 
 			}

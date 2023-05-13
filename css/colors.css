@@ -30,5 +30,8 @@
 	--table-altrow-color: rgba(0,0,0,0.75);
 	--solo-note-color: #884444;
 
+	/* we have a single button in error window */
+	--button-bg-color: #666666;
+
 
 }
