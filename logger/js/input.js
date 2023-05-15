@@ -1,38 +1,29 @@
 document.addEventListener("DOMContentLoaded", function() {
-	interact([
-		{
-			cmd: "modes",
-			work: logit.start
-		},
-		{
-			cmd: "classes",
-			work: function(r) { logit.clsss = r.data; }
-		},
-		{
-			cmd: "radios",
-			work: logit.radios
-		},
-		{
-			cmd: "zones",
-			work: function(r) { logit.zones = r.data; }
-		}
-	]);
+	logit.start();
 });
 
 
 var logit = {
 
-	e:        {},
-	zones:    null,
-	rstr:     null,
-	clsss:    null,
-	radiochk: null,
-	booklook: null,
-	dupelook: null,
-	data:     new logrecord(),
+	e:         {},    // elements used by this class
+	zones:     null,  // zones, comes in via API call
+	clsss:     null,  // classes, as above
+	radiochk:  null,  // the interval for radio data checking
+	booklook:  null,  // the timeout for callbook lookups
+	dupelook:  null,  // the timeout for dupe checks
+
+	radio:     "MANUAL",        // the radio currently selected
+	rstr:      null,            // a simple compare string for radio dropdown
+	data:      new logrecord(), // the parsed record
+
+	delay: {   // timeout and lookup delays
+		lookup: 400,
+		radio:  3000
+	},
 
 	start: function(r) {
 
+		/* init 1: find all the things */
 		let find = [
 			'entry', 'freq', 'mode', 'handle', 'radio', // input elements
 
@@ -50,22 +41,48 @@ var logit = {
 				shit('UI', `couldn't find proper ${find[x]} element`);
 		}
 
+		/* init 2: get the data from the API */
+		interact([
+			{
+				cmd: "modes",
+				work: function(r) {
+					for (x in r.data) 
+						logit.e.mode.innerHTML += `<option>${r.data[x]}</option>\n`;
+				}
+			},
+			{
+				cmd: "classes",
+				work: function(r) { logit.clsss = r.data; }
+			},
+			{
+				cmd: "zones",
+				work: function(r) { logit.zones = r.data; }
+			}
+		]);
 
+		/* init 3: set all the UI interactions */
 		logit.e.radio.addEventListener("change", logit.radio_select);
-		logit.e.entry.addEventListener("input", logit.process);
-		logit.e.entry.value = null;
 
 		logit.e.freq.addEventListener("blur", logit.freqfmt);
 		logit.freqfmt();
 
+		logit.e.entry.addEventListener("input", logit.process);
+		logit.e.entry.onkeydown = function(evt) {
+			if (evt.keyCode == 13) 
+				logit.submit();
+		}
+		
 
-
-		for (x in r.data) 
-			logit.e.mode.innerHTML += `<option>${r.data[x]}</option>\n`;
-
+		/* init 4: set initial state */
 		logit.e.mode.value = logit.e.mode.options[0];
-
 		logit.radio_clear();
+		logit.entry_clear();
+		logit.e.handle.value = "";
+
+
+		/* init 5: start radio update interval */
+		logit.radio_get();
+		logit.radiochk = setInterval(logit.radio_get, logit.delay.radio);
 
 	},
 
@@ -88,50 +105,56 @@ var logit = {
 	},
 
 
+	radio_get: function() {
+		let q = [{
+			cmd: "radios",
+			work: logit.radios
+		}];
+
+		if (logit.radio != 'MANUAL') {
+			q.push({
+				cmd: "radio",
+				arg: [ logit.radio ],
+				work: logit.radio_data
+			});
+		}
+
+		interact(q);
+			
+	},
+
+
+
 	radios: function(r) {
 
-		let rstr = r.data.join();
+		if (r.data.join() != logit.rstr) {
+			console.log("updating radios", logit.e.radio);
 
-		if (rstr != logit.rstr) {
 			logit.e.radio.innerHTML = "<option>MANUAL</option>";
 
-			for (x in r.data) 
+			for (x in r.data)
 				logit.e.radio.innerHTML += `<option>${r.data[x]}</option>`;
 
-			logit.rstr = rstr;
+
+
+			logit.e.radio.value = logit.radio;
+
+			logit.rstr = r.data.join();
+
 		}
 
 	},
 
 	radio_select: function(evt) {
-
-		let radio = evt.target.value;
-		clearInterval(logit.radiochk);
-		
-
-		if (radio == 'MANUAL') {
+		logit.radio = evt.target.value;
+		if (logit.radio == 'MANUAL') {
 			logit.radio_clear();
-		} else {
-
-			let radio_update = function() {
-				interact([
-					{
-						cmd: 'radio',
-						arg: [ radio ],
-						work: logit.radio_data
-					}
-				]);
-			}
-
-			radio_update();
-			logit.radiochk = setInterval(radio_update, 3000);
 		}
-
-
+		logit.radio_get();
 	},
 
 	radio_clear: function() {
-		logit.e.radio.value = 'MANUAL';
+		logit.e.radio.value = logit.radio = 'MANUAL';
 		logit.e.freq.disabled = false;
 		logit.e.freq.classList.remove('locked');
 		logit.e.freq.value = 0;
@@ -144,14 +167,22 @@ var logit = {
 	radio_data: function(r) {
 
 		if (r.data.noradio == true) {
+			// our radio went away
 			logit.radio_clear();
-			clearInterval(logit.radiochk);
+			logit.process();
 			shit('UI', "Your radio configuration has disappeared.");
 		} else {
+
+			// disable the freq input
 			logit.e.freq.classList.add('locked');
-			logit.e.freq.value = r.data.freq;
-			logit.e.freq.dispatchEvent(new Event('blur'));
 			logit.e.freq.disabled = true;
+
+			// update value and reformat
+			logit.e.freq.value = r.data.freq;
+			logit.freqfmt();
+
+			// reprocess if frequency change
+			if (r.data.freq != logit.data.freq) logit.process();
 
 			if (r.data.mode == "UNK") {
 				logit.e.mode.classList.remove('locked');
@@ -176,12 +207,12 @@ var logit = {
 		let pop = [
 			'call', 'exchange',
 			'cname', 'cloc',
-			'tx', 'clss', 'status',
+			'tx', 'clss',
 			'zone', 'notes'
 		];
 		for (x in pop) logit.e[ pop[x] ].innerHTML = null;
 		logit.e.entry.value = null;
-		logit.e.status.classList.remove('bad','good');
+		logit.status_clear();
 		
 
 	},
@@ -262,14 +293,67 @@ var logit = {
 
 		}
 
+		//console.log("islog", parsed.islog(), "isnote", parsed.isnote());
 
-		// FIXME pull in freq, mode, do dupe check
-		
-
-		console.log("islog", parsed.islog(), "isnote", parsed.isnote());
 		logit.data = parsed;
+		if (logit.data.dupready()) logit.dupe();
 
 	},
+
+
+	submit: function() {
+
+		if (logit.e.handle.value == "" || logit.e.handle.value == null) {
+			shit("UI", "Please enter a name into the log.");
+			return;
+		}
+
+
+		if (logit.data.islog(true)) {
+			//submit log
+			interact([
+				{
+					cmd: "add",
+					arg: [
+						logit.data.call,
+						logit.data.tx,
+						logit.data.clss,
+						logit.data.zone,
+						logit.data.freq,
+						logit.data.mode,
+						logit.e.handle.value,
+						logit.data.notes
+					],
+					work: function(r) {
+						console.log("log submitted", r);
+						logit.entry_clear();
+						logtable.trigger();
+					}
+				}
+			]);
+		
+		} else if (logit.data.isnote()) {
+
+			interact([
+				{
+					cmd: "note",
+					arg: [
+						logit.data.notes,
+						logit.e.handle.value
+					],
+					work: function(r) {
+						console.log("note submitted", r);
+						logit.entry_clear();
+						logtable.trigger();
+					}
+				}
+			]);
+
+		}
+
+
+	},
+
 
 	callbook: function(call) {
 
@@ -287,7 +371,7 @@ var logit = {
 						work: logit.callbook_read
 					}
 				]);
-			}, 500);
+			}, logit.delay.lookup);
 		} 
 	},
 
@@ -319,11 +403,7 @@ var logit = {
 			logit.dupelook = null;
 		}
 
-		if (
-			logit.data.call != null &&
-			logit.data.freq != null && logit.data.freq > 0 &&
-			logit.e.mode.value != null
-		) {
+		if (logit.data.dupeready()) {
 
 			logit.dupelook = setTimeout(function() {
 
@@ -339,7 +419,9 @@ var logit = {
 					}
 				]);
 
-			}, 500);
+			}, logit.delay.lookup);
+		} else {
+			logit.e.status.innerHTML = "Incomplete";
 		}
 	},
 
@@ -349,23 +431,42 @@ var logit = {
 		if (r.data != null) {
 			console.log("DUPE");
 
-			logit.e.stats.innerHTML =
-				"DUPE on " +
-				new Date(r.data.logged + 'Z').loggedString();
 
-			logit.e.box.classList.add('bad');
-			logit.e.box.classList.remove('good');
 			logit.data.nodupe = false;
+			logit.status_bad(
+				"DUPE on " +
+				new Date(r.data.logged + 'Z').loggedString()
+			);
 
 
 		} else {
-			logit.e.stats.innerHTML = "No Dupe";
 			logit.data.nodupe = true;
-			logit.e.box.classList.add('good');
-			logit.e.box.classList.remove('bad');
 
-			
+			if (logit.data.islog(true)) {
+				logit.status_good("Complete and Clear!");
+			} else {
+				logit.status_bad("Incomplete!");
+			}
 		}
+	},
+
+
+	status_good: function(string) {
+		logit.e.parseinner.classList.remove('bad');
+		logit.e.parseinner.classList.add('good');
+		logit.e.status.innerHTML = string;
+	},
+
+	status_bad: function(string) {
+		logit.e.parseinner.classList.remove('good');
+		logit.e.parseinner.classList.add('bad');
+		logit.e.status.innerHTML = string;
+	},
+
+	status_clear: function() {
+		logit.e.parseinner.classList.remove('good');
+		logit.e.parseinner.classList.remove('bad');
+		logit.e.status.innerHTML = null;
 	}
 
 

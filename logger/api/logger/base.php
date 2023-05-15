@@ -12,7 +12,7 @@ class base {
 
 		// might as well check for dead radios
 		$this->query(
-			"DELETE FROM fdradio WHERE UNIX_TIMESTAMP() - logged > " .
+			"DELETE FROM fdradio WHERE  UNIX_TIMESTAMP() - UNIX_TIMESTAMP(logged) > " .
 			(int) \config::$settings->radiopurge
 		);
 	}
@@ -114,7 +114,7 @@ class base {
 
 	public function radios(): array {
 		$radios = [];
-		foreach ($this->fetchall("SELECT name FROM fdradio") as $r) $radios[] = $r["name"];
+		foreach ($this->fetchall("SELECT name FROM fdradio ORDER BY name") as $r) $radios[] = $r["name"];
 		return ([ true, $radios ]);
 	}
 
@@ -163,6 +163,9 @@ class base {
 
 	}
 
+	protected function cleanstring(string $in): string {
+		return preg_replace("#[^a-z0-9\-/]#i", "", $in);
+	}
 
 	/* json processing function */
 

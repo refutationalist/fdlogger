@@ -12,6 +12,8 @@ class radio extends base {
 		string $mode
 	): array  {
 
+		$name = $this->cleanstring($name);
+
 		// this will toss
 		$this->query(
 			"INSERT INTO fdradio(name, freq, mode) VALUES('%s', %d, '%s') ".

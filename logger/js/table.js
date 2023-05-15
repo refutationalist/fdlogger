@@ -49,10 +49,12 @@ var logtable = {
 			`</tr>`;
 
 		if (row.notes != null)
+
 			str += 
-				`<tr class="isfollow"><td colspan="7">`+
-				`<label>Note for Above Entry: </label>`+
-				`${row.notes}</td></tr>`;
+				'<tr class="isfollow"><td colspan="7">'+
+				'<label>Note for Above Entry: </label>'+
+				row.notes.htmlsafe() +
+				'</td></tr>';
 
 		logtable.add(str);
 
@@ -61,11 +63,12 @@ var logtable = {
 
 	addnote:  function(row) {
 		if (logtable.noteid < row.id) logtable.noteid = row.id;
-		
+
 		let str =
 			`<tr class="solonote"><td colspan="7"><div>`+
 			`<label>Note from ${row.handle}: </label>`+
-			`${row.notes}</div></td></tr>`;
+			row.notes.htmlsafe() +
+			'</div></td></tr>';
 	
 		logtable.add(str);
 
@@ -94,9 +97,18 @@ var logtable = {
 		return txt;
 
 
+	},
 
-
-
+	trigger: function() {
+		interact([
+			{
+				cmd: "since",
+				arg: [ logtable.logid, logtable.noteid ],
+				work: function(r) {
+					logtable.update(r.data);
+				}
+			}
+		]);
 	}
 
 
@@ -116,18 +128,6 @@ document.addEventListener("DOMContentLoaded", function() {
 		}
 	]);
 
-	setInterval(function() {
-
-		interact([
-			{
-				cmd: "since",
-				arg: [ logtable.logid, logtable.noteid ],
-				work: function(r) {
-					logtable.update(r.data);
-				}
-			}
-		]);
-
-	}, 10000);
+	setInterval(logtable.trigger, 10000);
 
 });

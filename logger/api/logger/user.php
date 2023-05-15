@@ -18,6 +18,9 @@ class user extends base {
 		null|string $notes = ""
 	): array {
 
+		// arb strings
+		$call   = $this->cleanstring($call);
+		$handle = $this->cleanstring($handle);
 
 		// test for valid class
 		if (!$this->inclasses($class)) return([false, "add: invalid class"]);
@@ -27,10 +30,6 @@ class user extends base {
 
 		// test for valid mode
 		if (!$this->inmodes($mode)) return([false, "add: invalid mode"]);
-
-		
-		// do I test for valid callsign?
-		// for now, no.
 
 		// notes!
 		$sql_notes = (trim($notes) !== "") ? "'".$this->quote($notes)."'" : 'NULL';
@@ -58,6 +57,10 @@ class user extends base {
 	public function note(
 		string $notes, string $handle
 	): array {
+		$handle = $this->cleanstring($handle);
+
+		// notes can carry arbitrary data, client needs to handle that
+
 		if (trim($handle) === "") 
 			return([false, 'need a handle']);
 		if (trim($notes) === "") 

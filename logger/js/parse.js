@@ -57,6 +57,19 @@ class logrecord {
 		}
 	}
 
+	dupeready() {
+
+		if (
+			this.call != null &&
+			this.mode != null &&
+			this.freq > 0 && this.freq != null
+		) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	str() {
 		return this.call +
 			this.tx    +

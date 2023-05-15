@@ -15,6 +15,23 @@ Date.prototype.loggedString = function() {
 	return output;
 }
 
+String.prototype.htmlsafe = function() {
+	let out = this.replace(
+		/[&<>'"]/g,
+		tag =>
+			({
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				"'": '&#39;',
+				'"': '&quot;'
+			}[tag] || tag)
+	);
+
+	return out;
+	 
+};
+
 /* error handling */
 function shit(cmd = "none", input = "") {
 
@@ -25,6 +42,11 @@ function shit(cmd = "none", input = "") {
 	document.getElementById("errortext").innerHTML += ` (${cmd}) ${input}`;
 	console.error(`LOGGER ERROR [${cmd}]: ${input}`);
 }
+
+window.onerror = function(message, source, lineno, colno, error) {
+	shit('JS', `${message} [${source} ${lineno}:${colno}] (${error})`);
+}
+
 
 document.addEventListener("DOMContentLoaded", function() {
 	document.querySelector("#error div.clear").addEventListener(

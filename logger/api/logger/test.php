@@ -103,15 +103,12 @@ final class test extends base {
 		
 	}
 
-	public function update_junk_radio(string $name) {
+	public function update_junk_radio(string $name): array {
 
 		$band = $this->bands[ array_rand($this->bands) ];
 		$freq = rand($band["low"], $band["high"]); // frequency
 		$mode = $this->modes[ array_rand($this->modes) ];
 
-		echo "$name: $freq / $mode\n";
-		
-		
 		$this->query(
 			"INSERT INTO fdradio(name, freq, mode) VALUES('%s', %d, '%s') ".
 			"ON DUPLICATE KEY UPDATE freq = %d, mode = '%s', logged = NOW()",
@@ -121,6 +118,12 @@ final class test extends base {
 			$freq,
 			$this->quote($mode)
 		);
+
+		return [ $name, $freq, $mode ];
+	}
+
+	public function delete_radio(string $name) {
+		return $this->query("DELETE FROM fdradio WHERE name = '%s'", $this->quote($name));
 	}
 
 
