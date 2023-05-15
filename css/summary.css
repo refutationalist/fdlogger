@@ -1,4 +1,4 @@
-#zones {
+#summary {
 	display: grid;
 	padding-left: 4%;
 	grid-template-columns: 44% 44%;
@@ -16,23 +16,31 @@ div#section h3 {
 }
 */
 
-#zones h2, #zones span {
+#summary h2, #summary span {
 	color: var(--label-color);
 
 }
 
-#zones h2 {
+#summary h2 {
 	text-align: center;
 	border-bottom: 1px solid var(--table-border);
 }
 
-#zones span {
+#summary span {
 	display: inline-block;
 	width: 10%;
 }
 
+#summary table {
+	width: 80%;
+	margin-left: 10%;
+}
+#summary td {
+	text-align: center;
+}
 
-#zones ul {
+
+#summary ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;

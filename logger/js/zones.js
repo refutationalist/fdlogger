@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function(evt) {
 			arg: [ true ],
 			work: function(r) {
 				let str, label;
-				let output = document.getElementById('zones');
+				let output = document.getElementById('summary');
 				console.log(r);
 
 				for (x in r.data) {
