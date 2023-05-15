@@ -1,5 +1,5 @@
 <?php
-require("boatload.php");
+require("../api/boatload.php");
 
 $t = new logger\test();
 $c = 0;

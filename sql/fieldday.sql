@@ -40,7 +40,7 @@ CREATE TABLE fdzone (
 
 CREATE TABLE fdclass (
 	code	CHAR(3) NOT NULL,
-	text	VARCHAR(256) NOT NULL,
+	name	VARCHAR(256) NOT NULL,
 	PRIMARY KEY pk_fdclass(code)
 ) ENGINE=InnoDB;
 
@@ -164,6 +164,11 @@ NEW.band  = IFNULL((SELECT code FROM fdband WHERE NEW.freq BETWEEN low AND high 
 
 /* views */
 DROP VIEW IF EXISTS `fdlogdisplay`;
+DROP VIEW IF EXISTS `fdbyband`;
+DROP VIEW IF EXISTS `fdbymode`;
+DROP VIEW IF EXISTS `fdbycabmode`;
+DROP VIEW IF EXISTS `fdbyzone`;
+DROP VIEW IF EXISTS `fdbyclass`;
 
 CREATE VIEW fdlogdisplay AS SELECT
 	'log' AS kind,
@@ -181,3 +186,43 @@ UNION SELECT
 	'note', nid, NULL, NULL, NULL, NULL, NULL, handle, logged, notes
 FROM fdnote
 ORDER BY logged DESC;
+
+CREATE VIEW fdbyband AS SELECT
+COUNT(lid) AS qso, band
+FROM fdlog
+GROUP BY band
+ORDER BY qso DESC;
+
+CREATE VIEW fdbymode AS SELECT
+COUNT(lid) AS qso,
+mode
+FROM fdlog
+GROUP BY mode
+ORDER BY qso DESC;
+
+CREATE VIEW fdbycabmode AS SELECT
+COUNT(A.lid) AS qso,
+COUNT(A.lid) * IF(B.cab = 'PH', 1, 2) AS points,
+B.cab AS cabmode
+FROM fdmode B
+LEFT OUTER JOIN fdlog A ON A.mode = B.code
+GROUP BY B.cab
+ORDER BY qso DESC;
+
+CREATE VIEW fdbyzone AS SELECT
+COUNT(lid) AS qso,
+B.code, B.name
+FROM fdzone B
+LEFT OUTER JOIN fdlog A ON A.zone = B.code
+GROUP BY B.code
+ORDER BY qso DESC;
+
+
+CREATE VIEW fdbyclass AS SELECT
+COUNT(lid) AS qso,
+B.code, B.name
+FROM fdclass B
+LEFT OUTER JOIN fdlog A ON A.class = B.code
+GROUP BY B.code
+ORDER BY qso DESC;
+

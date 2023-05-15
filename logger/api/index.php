@@ -12,6 +12,10 @@ switch ($_GET["a"]) {
 		$part = new logger\radio();
 		break;
 
+	case "summary":
+		$part = new logger\summary();
+		break;
+
 	case "test";
 		if (\config::$debug) $part = logger\test();
 		break;
