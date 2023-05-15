@@ -17,7 +17,7 @@ var logit = {
 	data:      new logrecord(), // the parsed record
 
 	delay: {   // timeout and lookup delays
-		lookup: 400,
+		lookup: 300,
 		radio:  3000
 	},
 
@@ -63,7 +63,7 @@ var logit = {
 			},
 			{
 				cmd: "zones",
-				work: function(r) { logit.zones = r.data; console.log("Zones", r.data);}
+				work: function(r) { logit.zones = r.data; }
 			}
 		]);
 
@@ -212,6 +212,10 @@ var logit = {
 		for (x in pop) logit.e[ pop[x] ].innerHTML = null;
 		logit.e.entry.value = null;
 		logit.status_clear();
+
+		clearTimeout(logit.dupelook);
+		clearTimeout(logit.booklook);
+		logit.dupelook = logit.booklook = null;
 		
 
 	},
