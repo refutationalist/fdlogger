@@ -1,0 +1,71 @@
+#zones {
+	display: grid;
+	padding-left: 4%;
+	grid-template-columns: 44% 44%;
+	gap: 1vh 4%;
+	margin-bottom: 30vh;
+}
+
+/*
+div#section h3 {
+	grid-column: 1 / span 2;
+	margin: 1vh auto;
+	text-align: center;
+	border-bottom: 1px solid #444;
+	font-size: 3vmin;
+}
+*/
+
+#zones h2, #zones span {
+	color: var(--label-color);
+
+}
+
+#zones h2 {
+	text-align: center;
+	border-bottom: 1px solid var(--table-border);
+}
+
+#zones span {
+	display: inline-block;
+	width: 10%;
+}
+
+
+#zones ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#history {
+	overflow-y: auto;
+	height: 80vh;
+	width: 90vw;
+	border-bottom: 1px solid var(--table-border);
+	margin-left: 5vw;
+}
+#history table {
+	width: 100%;
+}
+
+#history thead tr th {
+	position: sticky;
+	top: 0;
+}
+
+#history tr.hasfollow, #history tr.hasfollow td {
+	border-bottom: none;
+}
+#history tr.isfollow, #history tr.isfollow td {
+	border-top: none;
+}
+
+#history tr.solonote td div {
+	border: 1px solid var(--table-border);
+	background-color: var(--solo-note-color);
+	margin: 1vh 1vw;
+	padding: 1vh 1vw;
+	border-radius: .5vmin;
+}
+

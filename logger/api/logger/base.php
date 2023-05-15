@@ -50,8 +50,8 @@ class base {
 		return false;
 	}
 
-	public function zones(): array {
-		return [ true, $this->getzones() ];
+	public function zones(bool $by_area = false): array {
+		return [ true, $this->getzones($by_area) ];
 	}
 
 
@@ -62,7 +62,7 @@ class base {
 		$return = [];
 
 		foreach ($this->fetchall("SELECT * FROM fdclass ORDER BY code") as $c) {
-			$return[ $c["code"] ] = $c["text"];
+			$return[ $c["code"] ] = $c["name"];
 		}
 
 		return $return;

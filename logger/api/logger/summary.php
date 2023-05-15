@@ -4,9 +4,9 @@ namespace logger;
 
 class summary extends base {
 
-	public function count(): int {
+	public function count(): array {
 		$r = $this->fetchall("SELECT COUNT(*) AS cnt FROM fdlog");
-		return([ true, $r[0]["count"] ]);
+		return([ true, $r[0]["cnt"] ]);
 	}
 
 	public function byband(): array {

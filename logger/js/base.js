@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /* generalized call to API */
-async function interact(incoming = {}) {
+async function interact(incoming = {}, apimode = "user") {
 
 	let calls    = { };
 	let process = { };
@@ -86,7 +86,7 @@ async function interact(incoming = {}) {
 
 	console.log(JSON.stringify(calls));
 
-	let query = await fetch("api?a=user", {
+	let query = await fetch("api?a="+apimode, {
 		method: "POST",
 		body: JSON.stringify(calls)
 	});

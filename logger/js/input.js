@@ -41,7 +41,14 @@ var logit = {
 				shit('UI', `couldn't find proper ${find[x]} element`);
 		}
 
-		/* init 2: get the data from the API */
+		
+		/* init 2: set initial state */
+		logit.e.mode.value = logit.e.mode.options[0];
+		logit.radio_clear();
+		logit.entry_clear();
+		logit.e.handle.value = "";
+
+		/* init 3: get the data from the API */
 		interact([
 			{
 				cmd: "modes",
@@ -56,11 +63,11 @@ var logit = {
 			},
 			{
 				cmd: "zones",
-				work: function(r) { logit.zones = r.data; }
+				work: function(r) { logit.zones = r.data; console.log("Zones", r.data);}
 			}
 		]);
 
-		/* init 3: set all the UI interactions */
+		/* init 4: set all the UI interactions */
 		logit.e.radio.addEventListener("change", logit.radio_select);
 
 		logit.e.freq.addEventListener("blur", logit.freqfmt);
@@ -72,13 +79,6 @@ var logit = {
 				logit.submit();
 		}
 		
-
-		/* init 4: set initial state */
-		logit.e.mode.value = logit.e.mode.options[0];
-		logit.radio_clear();
-		logit.entry_clear();
-		logit.e.handle.value = "";
-
 
 		/* init 5: start radio update interval */
 		logit.radio_get();
@@ -128,7 +128,6 @@ var logit = {
 	radios: function(r) {
 
 		if (r.data.join() != logit.rstr) {
-			console.log("updating radios", logit.e.radio);
 
 			logit.e.radio.innerHTML = "<option>MANUAL</option>";
 
@@ -296,7 +295,7 @@ var logit = {
 		//console.log("islog", parsed.islog(), "isnote", parsed.isnote());
 
 		logit.data = parsed;
-		if (logit.data.dupready()) logit.dupe();
+		if (logit.data.dupeready()) logit.dupe();
 
 	},
 
@@ -426,7 +425,6 @@ var logit = {
 	},
 
 	dupe_read: function(r) {
-		console.log(r.data);
 
 		if (r.data != null) {
 			console.log("DUPE");

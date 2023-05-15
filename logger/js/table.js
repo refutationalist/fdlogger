@@ -6,10 +6,14 @@ var logtable = {
 	body:    null,
 	logid:   0,
 	noteid:  0,
+	range:   null,
 
 	start: function(e, data) {
 		logtable.element = e;
 		logtable.body = e.querySelector("tbody");
+		
+		logtable.range = document.createRange();
+		logtable.range.selectNodeContents(logtable.body);
 		logtable.update(data);
 	},
 
@@ -26,8 +30,6 @@ var logtable = {
 		}
 
 	},
-
-
 
 	addlog: function(row) {
 
@@ -77,7 +79,9 @@ var logtable = {
 	add: function(string) {
 
 		// there might be a more performant way to to do this
-		logtable.body.innerHTML = string + logtable.body.innerHTML;
+		//logtable.body.innerHTML = string + logtable.body.innerHTML;
+		let node = logtable.range.createContextualFragment(string);
+		logtable.body.prepend(node);
 	},
 
 
@@ -116,18 +120,22 @@ var logtable = {
 
 };
 
-document.addEventListener("DOMContentLoaded", function() { 
+document.addEventListener("DOMContentLoaded", function() {
+
+	/* ugh. */
+
+	let limit = (location.href.split("/").slice(-1) == "full.html") ? 0 : 50;
 	
 	interact([
 		{
 			cmd: "get",
-			arg: [ 50 ],
+			arg: [ limit ],
 			work: function(r) {
 				logtable.start(document.querySelector("#history table"), r.data);
 			}
 		}
 	]);
 
-	setInterval(logtable.trigger, 10000);
+	if (limit != 0) setInterval(logtable.trigger, 10000);
 
 });
