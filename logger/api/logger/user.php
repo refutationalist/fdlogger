@@ -111,7 +111,7 @@ class user extends base {
 
 		return([ 
 			true,
-			$this->fetchall(
+			@$this->fetchall(
 				"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
 				"WHERE csign = '%s' ".
 				"AND band = (SELECT code FROM fdband WHERE low <= %d AND high >= %d LIMIT 1) ".

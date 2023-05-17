@@ -145,7 +145,7 @@ class base {
 			$this->quote($call)
 		);
 
-		$return = ($r[0]) ? $r[0] : [ "notfound" => true ];
+		$return = (@$r[0]) ? $r[0] : [ "notfound" => true ];
 
 
 		return([ true, $return ]);
@@ -169,6 +169,18 @@ class base {
 
 	/* json processing function */
 
+	protected function cmdcheck(string $method): bool {
+
+		if ($method == "process") return false;
+		if (!method_exists($this, $method)) return false;
+
+		$rf = new \ReflectionMethod($this, $method);
+		if (!$rf->isPublic()) return false;
+		if ($rf->getReturnType() != "array") return false;
+		return true;
+
+	}
+
 
 	public function process(): null {
 		
@@ -187,21 +199,16 @@ class base {
 			$cmd = $request->cmd;
 			$arg = (@$request->arg) ? $request->arg : [];
 
-			if($cmd == "process") continue;
-
-			if (method_exists($this, $cmd)) {
+			if ($this->cmdcheck($cmd)) {
 
 				try {
-					try {
-						// this is the part where things are done
-						$done = $this->$cmd(...$arg);
-					} catch (\logger_exception $exc) {
-						$done = [ false, 'PHP Exception Thrown: '. $exc->getMessage() ];
-					}
+					// this is the part where things are done
+					$done = $this->$cmd(...$arg);
+				} catch (\logger_exception $exc) {
+					$done = [ false, 'PHP Exception Thrown: '. $exc->getMessage() ];
 				} catch (\Error $err) {
 					$done = [ false, 'PHP code error: '. $err->getMessage() ];
 				}
-
 
 				$output[$id] = [
 					"cmd"     => $cmd,
