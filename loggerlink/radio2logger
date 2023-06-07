@@ -1,0 +1,183 @@
+#!/usr/bin/php
+<?php
+
+// -d localhost:4532 -u "http://url" -r "name"
+$options = getopt("vnhd:u:r:w:");
+
+if (isset($options["h"])) help();
+
+$debug = isset($options["v"]);
+
+if (!isset($options["r"])) bomb("no radio name");
+$name = $options["r"];
+debug("radio name: $name");
+
+if (!isset($options["u"])) bomb("no logger url");
+$url = $options["u"];
+debug("url: $url");
+
+if (@isset($options["d"])) list($host, $port) = explode(":", $options["d"]);
+if (@!$host) $host = "localhost";
+if (@!$port) $port = 4532;
+debug("host: $host / port: $port");
+
+$wait = (isset($options["w"])) ? intval($options["w"]) : 3;
+if ($wait == 0) bomb("invalid wait time");
+debug("wait: $wait");
+
+$do_mode = !isset($options["n"]);
+debug("send mode: " . (($do_mode) ? "YES" : "NO"));
+
+
+## okay, watching starts here
+
+debug("connecting to rigctl");
+try {
+	$r = new rigctl($host, $port);
+} catch (Exception $e) {
+	bomb("couldn't connect to rigctld: ".$e->getMessage());
+}
+
+$change = "";
+
+do {
+
+	$get = $r->get();
+	if (!$get) bomb("lost connection to rigctl");
+
+	list($freq, $mode, $pass) = $get;
+
+	if ($freq == 0) bomb("frequency unreadable");
+
+	if ($do_mode) {
+		debug("preparse mode: $mode");
+		if (!in_array($mode, ['CW', 'AM', 'USB', 'LSB', 'FM'])) {
+
+			switch ($mode) {
+
+				case "CWR":
+					$mode = "CW";
+					break;
+
+				case "PKTUSB":
+				case "PKTLSB":
+					$mode = "DIG";
+					break;
+
+				case "WFM":
+					$mode = "FM";
+					break;
+
+				case "RTTYR":
+					$mode = "RTTY";
+					break;
+
+
+				default:
+					$mode = "UNK";
+					break;
+			}
+
+		}	
+
+	} else {
+		$mode = "UNK";
+	}
+
+
+	$get = sprintf(
+		"%s/api?a=radio&name=%s&freq=%d&mode=%s",
+		$url,
+		urlencode($name),
+		$freq,
+		urlencode($mode)
+	);
+
+	debug("URL: $get");
+
+	$output = trim(file_get_contents($get));
+
+	if (intval($output) != 1) {
+		debug("RESULTS: $output");
+		bomb("bad results from server");
+	}
+
+	if ($change != $freq.$mode) {
+		printf(
+			"Radio [%s]: freq(%d) mode(%s)\n",
+			$name, $freq, $mode
+		);
+		$change = $freq.$mode;
+	}
+
+
+	sleep($wait);
+} while(true);
+
+
+function bomb(string $str, int $exit = 1): null {
+	echo "radio2logger: $str\n";
+	exit($exit);
+	return null;
+}
+
+function debug(string $str): null {
+	global $debug;
+	if ($debug) echo "## $str\n";
+	return null;
+}
+
+function help(int $exit = 0): null {
+
+	echo <<<EndHELP
+radio2logger: send radio data to N9MII's FD logger
+
+     -d <host>:<port>    - host and port of rigctld server
+                           defaults to localhost and 4532
+     -u <url>            - URL of N9MII logger
+     -r <name>           - the name of your radio as it will
+                           appear in your logger
+     -w <int>            - wait <int> seconds between updates
+                           defaults to 3
+     -n                  - do not send modulation information
+     -h                  - this help
+     -v                  - print debugging info
+
+EndHELP;
+	exit($exit);
+}
+
+
+final class rigctl {
+
+	protected $s = false;
+
+
+	public function __construct(string $host = 'localhost', int $port = 4532) {
+		$this->s = fsockopen($host, $port, $eno, $e, 2);
+		if (!$this->s) throw new Exception("yikes");
+	}
+
+	public function __destruct() {
+		fclose($this->s);
+	}
+
+	public function get(): null|array {
+
+		if (!fwrite($this->s, "fm\n")) return null;
+
+		$freq = fgets($this->s);
+		$mode = fgets($this->s);
+		$pass = fgets($this->s);
+
+		if ($freq == false || $mode == false || $pass == false) return null;
+
+		return([
+			intval(trim($freq)),
+			trim($mode),
+			intval(trim($pass))
+		]);
+
+	}
+
+}
