@@ -23,8 +23,6 @@ class loggerlink {
 		} else if ($args->_int("v")) {
 			$this->debug = $args->v;
 		}
-		echo "debug: "; var_dump($this->debug);
-
 
 		if (!$args->_string("r")) $this->bomb("no radio name");
 		$this->name = $args->r;
