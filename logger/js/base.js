@@ -17,14 +17,16 @@ Date.prototype.loggedString = function() {
 
 String.prototype.htmlsafe = function() {
 	let out = this.replace(
-		/[&<>'"]/g,
+		/[&<>'"{}]/g,
 		tag =>
 			({
 				'&': '&amp;',
 				'<': '&lt;',
 				'>': '&gt;',
 				"'": '&#39;',
-				'"': '&quot;'
+				'"': '&quot;',
+				'{': '<pre>',
+				'}': '</pre>'
 			}[tag] || tag)
 	);
 

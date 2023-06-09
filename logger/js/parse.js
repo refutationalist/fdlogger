@@ -91,7 +91,7 @@ class parse {
 		exchange: /\b([0-9]+)([a-f]b?)\b/i,
 		section:  /\b([a-z]{2,3})\b/i,
 		dxcall:   /\b([a-z0-9]{1,3}[0-9][a-z0-9]{0,3}[a-z])\b/i,
-		notes:    /\[(.*)\]/i
+		notes:    /\[(.*)\]/im
 	}
 
 

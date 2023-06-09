@@ -12,12 +12,12 @@ class follower extends loggerlink {
 	protected string $host    = 'localhost';
 	protected int    $port    = 4532;
 
-	public function __construct() {
+	public function __construct(\loggerlink\naive_getopt $args) {
 
-		$options = $this->options("d:w:n");
+		$this->options($args);
 
-		if (@isset($options["d"])) {
-			list($host, $port) = explode(":", $options["d"]);
+		if ($args->_string("d")) {
+			list($host, $port) = explode(":", $args->d);
 			$host = trim($host);
 			$port = intval($port);
 
@@ -28,19 +28,15 @@ class follower extends loggerlink {
 		}
 		$this->debug("host: $this->host / port: $this->port");
 
-		$this->wait = (int) (isset($options["w"])) ? intval($options["w"]) : 3;
+		$this->wait = (int) (@$args->w) ? (int) $args->w : 3;
 		if ($this->wait == 0) $this->bomb("invalid wait time");
 		$this->debug("wait: $this->wait");
 
-		$this->do_mode = !isset($options["n"]);
+		$this->do_mode = !$args->_test("n");
 		$this->debug("send mode: " . (($this->do_mode) ? "YES" : "NO"));
 
 		$this->debug("connecting to rigctl");
-		try {
-			$this->rigctl_open();
-		} catch (\Exception $e) {
-			$this->bomb("couldn't connect to rigctld: ".$e->getMessage());
-		}
+		$this->rigctl_open();
 
 		$this->whoami();
 		$this->go();
@@ -59,6 +55,7 @@ class follower extends loggerlink {
 
 			$get = $this->rigctl();
 			if (!$get) $this->bomb("lost connection to rigctl");
+			$this->debug("rigctl get:\n".print_r($get, true), 3);
 
 			list($freq, $mode, $pass) = $get;
 
@@ -101,14 +98,11 @@ class follower extends loggerlink {
 
 
 			list($ret) = $this->call("radio", [[
-				"cmd" => "name",
+				"cmd" => "set",
 				"arg" => [ $this->name, $freq, $mode ]
 			]]);
 
-			if (!$ret->result != true) {
-				$this->debug("api return: ".json_encode($ret));
-				$this->bomb("API call fail");
-			}
+			if ($ret->result != true) $this->bomb("API call fail");
 
 			if ($change != $freq.$mode) {
 				printf(
@@ -127,9 +121,12 @@ class follower extends loggerlink {
 	}
 
 
-	protected function rigctl_open(string $host = 'localhost', int $port = 4532) {
-		$this->s = fsockopen($host, $port, $eno, $e, 2);
-		if (!$this->s) throw new Exception("yikes");
+	protected function rigctl_open() {
+		$this->s = fsockopen($this->host, $this->port, $eno, $err, 1);
+		if (!$this->s) {
+			$this->debug("rigctl opening fail: $err\n");
+			$this->bomb("could not connect to rigctl\n");
+		}
 	}
 
 	protected function rigctl(): null|array {

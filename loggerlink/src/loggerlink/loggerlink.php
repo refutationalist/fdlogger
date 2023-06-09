@@ -10,26 +10,32 @@ class loggerlink {
 	protected string $mycall;
 	protected string $myexchange;
 
-	public bool $debug;
+	public int $debug = 0;
 
 
 
-	public function options(string $extra) {
+	public function options(\loggerlink\naive_getopt $args):null {
 
-		$options = getopt("u:r:hv".$extra);
+		$this->debug = $args->_test("v");
 
-		if (isset($options["h"])) $this->help();
-		$this->debug = isset($options["v"]);
+		if ($args->_bool("v")) {
+			$this->debug = 1;
+		} else if ($args->_int("v")) {
+			$this->debug = $args->v;
+		}
+		echo "debug: "; var_dump($this->debug);
 
-		if (!isset($options["r"])) $this->bomb("no radio name");
-		$this->name = $options["r"];
+
+		if (!$args->_string("r")) $this->bomb("no radio name");
+		$this->name = $args->r;
 		$this->debug("radio name: $this->name");
 		
-		if (!isset($options["u"])) $this->bomb("no logger url");
-		$this->url = $options["u"];
+		if (!$args->_string("u")) $this->bomb("no logger url");
+		$this->url = $args->u;
 		$this->debug("url: $this->url");
+
+		return null;
 		
-		return $options;
 
 	}
 
@@ -55,7 +61,11 @@ class loggerlink {
 	protected function call(string $mode, array $command): array|null {
 
 		$url = sprintf("%s/api?a=%s", $this->url, $mode);
+
+		$json = json_encode($command);
+
 		$this->debug("call url: ".$url);
+		$this->debug("json send: $json", 2);
 
 		$curl = curl_init();
 		curl_setopt($curl, CURLOPT_URL, $url);
@@ -70,6 +80,7 @@ class loggerlink {
 		);
 		curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($command));
 		$rawtext = curl_exec($curl);
+		$this->debug("json recv: $rawtext\n", 2);
 
 		if ((int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE) != 200)
 			$this->bomb("call to logger has bad response code");
@@ -84,8 +95,8 @@ class loggerlink {
 	}
 
 
-	protected function debug(string $str): null {
-		if ($this->debug) echo "## $str\n";
+	protected function debug(string $str, int $level = 1): null {
+		if ($this->debug >= $level) echo "## $str\n";
 		return null;
 	}
 
@@ -96,39 +107,6 @@ class loggerlink {
 		return null; // nyaaa
 	}
 
-	function help(int $exit = 0): null {
-
-		echo <<<EndHELP
-loggerlink: send radio data to N9MII's FD logger
-
-Required Settings:
-     -u <url>            - URL of N9MII logger
-     -r <name>           - the name of your radio as it will
-                           appear in your logger
-
-Radio Follow Mode (-f):
-     -d <host>:<port>    - host and port of rigctld server
-                           defaults to localhost and 4532
-     -w <int>            - wait <int> seconds between updates
-                           defaults to 3
-     -n                  - do not send modulation information
-
-WSJTX Logging (-w):
-
-WSJT-X Propagation Monitoring (-p):
-
-Supplemental Settings:
-     -h                  - this help
-     -v                  - print debugging info
-
-
-
-EndHELP;
-		exit($exit);
-	}
-
-
-	
 
 
 }

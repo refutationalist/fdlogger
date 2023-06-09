@@ -100,9 +100,11 @@ INSERT INTO fdmode VALUES
 	("PH",    "PH", 6),
 	("FT8",   "DG", 7),
 	("JT8",   "DG", 8),
-	("PSK31", "DG", 9),
-	("RTTY",  "DG", 10),
-	("SSTV",  "DG", 11);
+	("FT4",   "DG", 9),
+	("JT65",  "DG", 10),
+	("PSK31", "DG", 11),
+	("RTTY",  "DG", 12),
+	("SSTV",  "DG", 13);
 
 /*
  fdradio.mode is not a foreign key as we want to be able to set 

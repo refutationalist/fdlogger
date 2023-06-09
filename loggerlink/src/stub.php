@@ -36,26 +36,62 @@ spl_autoload_register(function ($class) {
     }
 
 });
-/*
-$argp = getopt(
-	"u:r:hv". // base class
-	"fd:w:n".  // follower class
-	"w:".
-	"p:"
-);
- */
 
-$argp = getopt("fwj");
 
-if (isset($argp["f"])) {
-	new loggerlink\follower();
-} else if (isset($argp["w"])) {
-	new loggerlink\wsjtx();
-} else if (isset($argp["p"])) {
-	new loggerlink\propwatch();
+$args = new loggerlink\naive_getopt();
+var_dump($args);
+
+if ($args->_test("h")) {
+	help();
+} else if ($args->_test("f")) {
+	new loggerlink\follower($args);
+} else if ($args->_test("w")) {
+	new loggerlink\wsjtx($args);
+} else if ($args->_test("p")) {
+	new loggerlink\propwatch($args);
 } else {
-	$p = new loggerlink\loggerlink();
-	$p->help();
+	echo $argv[0] .": WHATS WRONG?\n";
+	help();
 }
+
+
+function help(int $exit = 0): null {
+
+	echo <<<EndHELP
+loggerlink: send radio data to N9MII's FD logger
+
+Required Settings:
+     -u <url>            URL of N9MII logger
+
+     -r <name>           the name of your radio as it will appear in
+                         your logger
+
+Radio Follow Mode (-f):
+     -d <host>:<port>    host and port of rigctld server defaults to
+                         localhost and 4532
+
+     -w <int>            wait <int> seconds between updates defaults to 3
+
+     -n                  do not send modulation information
+
+WSJTX Logging:
+     -p <directory>      directory containing contest log for
+                         WSJT-X instance
+
+WSJT-X Propagation Monitoring:
+
+     -p <directory>      directory containing ALL.TXT for
+                         WSJT-X instance
+Supplemental Settings:
+     -h                  this help
+     -v                  print debugging info
+
+
+
+EndHELP;
+	exit($exit);
+}
+
+
 
 __HALT_COMPILER();
