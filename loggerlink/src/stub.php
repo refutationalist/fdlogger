@@ -1,9 +1,15 @@
 <?php
 
 if (php_sapi_name() != "cli") {
-	echo "cli only.\n";
+	echo "{$argv[0]}: cli only.\n";
 	exit(99);
 }
+
+if (!class_exists("SQLite3")) {
+	echo "{$argv[0]}: requires sqlite3 extension.\n";
+	exit(98);
+}
+
 
 spl_autoload_register(function ($class) {
 
@@ -39,7 +45,6 @@ spl_autoload_register(function ($class) {
 
 
 $args = new loggerlink\naive_getopt();
-var_dump($args);
 
 if ($args->_test("h")) {
 	help();
