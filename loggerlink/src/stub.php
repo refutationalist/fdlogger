@@ -45,7 +45,7 @@ if ($args->_test("h")) {
 	help();
 } else if ($args->_test("f")) {
 	new loggerlink\follower($args);
-} else if ($args->_test("w")) {
+} else if ($args->_test("x")) {
 	new loggerlink\wsjtx($args);
 } else if ($args->_test("p")) {
 	new loggerlink\propwatch($args);
@@ -63,10 +63,11 @@ loggerlink: send radio data to N9MII's FD logger
 Required Settings:
      -u <url>            URL of N9MII logger
 
-     -r <name>           the name of your radio as it will appear in
-                         your logger
+     -r <name>           the name of your radio in Radio Follow mode
+                         or your log handle in the other modes
 
-Radio Follow Mode (-f):
+Radio Follow Mode:
+     -f                  engage follow mode
      -d <host>:<port>    host and port of rigctld server defaults to
                          localhost and 4532
 
@@ -75,11 +76,13 @@ Radio Follow Mode (-f):
      -n                  do not send modulation information
 
 WSJTX Logging:
-     -p <directory>      directory containing contest log for
+     -x <directory>      directory containing contest log for
                          WSJT-X instance
+     -w <int>            wait <int> seconds between checks
+                         defaults to 60
+
 
 WSJT-X Propagation Monitoring:
-
      -p <directory>      directory containing ALL.TXT for
                          WSJT-X instance
 Supplemental Settings:

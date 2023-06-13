@@ -15,7 +15,8 @@ class user extends base {
 		string $mode,
 
 		string $handle,
-		null|string $notes = ""
+		null|string $notes = "",
+		null|int $time = null
 	): array {
 
 		// arb strings
@@ -38,14 +39,18 @@ class user extends base {
 		if (trim($handle) === "") 
 			return([false, 'add: need a handle']);
 
+		$time = ($time == null) ? 'NULL' : "FROM_UNIXTIME($time)";
+
+
+
 		// everything makes sense.   let's go!
 		
 		if ($this->query(
 			"INSERT INTO fdlog SET ".
 			"csign = '%s', tx = %d, class = '%s', zone = '%s', freq = %d, mode = '%s', ".
-			"handle = '%s', notes = %s",
+			"handle = '%s', notes = %s, logged = %s",
 			$call, $tx, $this->quote($class), $this->quote($zone), $freq, $this->quote($mode),
-			$handle, $sql_notes
+			$handle, $sql_notes, $time
 		)) {
 			return([true, 'add: submitted']);
 		} else {

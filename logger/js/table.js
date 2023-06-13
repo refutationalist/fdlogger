@@ -33,6 +33,7 @@ var logtable = {
 
 	addlog: function(row) {
 
+		row.id = parseInt(row.id);
 
 		if (logtable.logid < row.id) logtable.logid = row.id;
 
@@ -64,6 +65,7 @@ var logtable = {
 
 
 	addnote:  function(row) {
+		row.id = parseInt(row.id);
 		if (logtable.noteid < row.id) logtable.noteid = row.id;
 
 		let str =

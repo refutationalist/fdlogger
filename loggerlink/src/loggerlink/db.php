@@ -10,16 +10,23 @@ trait db {
 
 	protected \SQLite3|null $con = null;
 	protected string $last_sql = "";
+	protected string $file;
 
 	
 	protected function dbcheck() {
 		// with these options, sqlite will bomb out if it can't open the file
 		// also, change this to work with your config file.
 		if ($this->con == null) {
-			$dbfile = getenv("ENGLOGDB");
-			if (!file_exists($dbfile)) throw new \Exception("environment var ENGLOGDB doesn't point to a file");
-			$this->con = new \SQLite3($dbfile, SQLITE3_OPEN_READWRITE);
+			if (!file_exists($this->file)) throw new \Exception("{$this->file} doesn't exist");
+			$this->con = new \SQLite3($this->file, SQLITE3_OPEN_READWRITE);
 			$this->exec("PRAGMA foreign_keys = ON;");
+		}
+	}
+
+	protected function dbclose() {
+		if ($this->con != null) {
+			$this->con->close();
+			$this->con = null;
 		}
 	}
 
