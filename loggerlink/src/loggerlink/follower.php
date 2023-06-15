@@ -17,7 +17,7 @@ class follower extends loggerlink {
 		$this->options($args);
 
 		if ($args->_string("d")) {
-			list($host, $port) = explode(":", $args->d);
+			@list($host, $port) = explode(":", $args->d);
 			$host = trim($host);
 			$port = intval($port);
 
