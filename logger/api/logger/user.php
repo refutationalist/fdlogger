@@ -36,7 +36,7 @@ class user extends base {
 		$sql_notes = (trim($notes) !== "") ? "'".$this->quote($notes)."'" : 'NULL';
 
 		// handle
-		if (trim($handle) === "") 
+		if (trim($handle) === "")
 			return([false, 'add: need a handle']);
 
 		$time = ($time == null) ? 'NULL' : "FROM_UNIXTIME($time)";
@@ -44,7 +44,7 @@ class user extends base {
 
 
 		// everything makes sense.   let's go!
-		
+
 		if ($this->query(
 			"INSERT INTO fdlog SET ".
 			"csign = '%s', tx = %d, class = '%s', zone = '%s', freq = %d, mode = '%s', ".
@@ -66,9 +66,9 @@ class user extends base {
 
 		// notes can carry arbitrary data, client needs to handle that
 
-		if (trim($handle) === "") 
+		if (trim($handle) === "")
 			return([false, 'need a handle']);
-		if (trim($notes) === "") 
+		if (trim($notes) === "")
 			return([false, 'note is empty']);
 
 		if ($this->query(
@@ -90,11 +90,14 @@ class user extends base {
 
 		$rows = $this->fetchall("SELECT * FROM fdlogdisplay" . $post);
 
+		/* FIXME it will actually throw an exception if there's a problem.  no need to test here.
 		if ($rows == false) {
 			return([false, "get: db query error"]);
 		} else {
-			return([true, $rows]);
-		}
+		*/
+		return([true, $rows]);
+		// see above }
+
 
 
 	}
@@ -114,7 +117,7 @@ class user extends base {
 	public function dupe(string $call, string $freq, string $mode): array {
 		$freq = intval($freq);
 
-		return([ 
+		return([
 			true,
 			@$this->fetchall(
 				"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
