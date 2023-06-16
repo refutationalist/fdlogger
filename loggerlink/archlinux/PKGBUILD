@@ -1,7 +1,7 @@
 # Maintainer: Sam Mulvey <sam@ktqa.org>
 pkgname=loggerlink
 pkgver=2023
-pkgrel=1
+pkgrel=2
 pkgdesc="connector for N9MII field day logger"
 arch=(any)
 url="https://github.com/refutationalist/fieldday"
