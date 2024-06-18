@@ -35,14 +35,14 @@ String.prototype.htmlsafe = function() {
 };
 
 /* error handling */
-function shit(cmd = "none", input = "") {
+function shit(cmd = "none", input = "", extra = { }) {
 
 	if (!document.body.classList.contains('error'))
 		document.body.classList.add('error');
 
 
 	document.getElementById("errortext").innerHTML += ` (${cmd}) ${input}`;
-	console.error(`LOGGER ERROR [${cmd}]: ${input}`);
+	console.error(`LOGGER ERROR [${cmd}]: ${input}`, extra);
 }
 
 window.onerror = function(message, source, lineno, colno, error) {
@@ -61,6 +61,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /* generalized call to API */
+process_id = 0;
+
 async function interact(incoming = {}, apimode = "user") {
 
 	let calls    = { };
@@ -78,10 +80,12 @@ async function interact(incoming = {}, apimode = "user") {
 			continue;
 		}
 
-		calls[x] = { cmd: incoming[x].cmd };
-		if (incoming[x].arg) calls[x].arg = incoming[x].arg;
+		id = ++process_id;
 
-		process[x] = incoming[x].work;
+		calls[ process_id ] = { cmd: incoming[x].cmd };
+		if (incoming[x].arg) calls[ process_id ].arg = incoming[x].arg;
+
+		process[ process_id ] = incoming[x].work;
 
 
 	}
@@ -99,7 +103,7 @@ async function interact(incoming = {}, apimode = "user") {
 		r = results[i];
 
 		if (r.result == false) {
-			shit(r.cmd, r.data);
+			shit(r.cmd, r.data, incoming);
 			continue;
 		}
 

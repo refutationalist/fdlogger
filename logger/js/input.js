@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function() {
 	logit.start();
 });
 
-
 var logit = {
 
 	e:         {},    // elements used by this class
@@ -400,7 +399,6 @@ var logit = {
 
 	dupe: function(call) {
 
-
 		if (logit.dupelook) {
 			clearTimeout(logit.dupelook);
 			logit.dupelook = null;
@@ -408,16 +406,28 @@ var logit = {
 
 		if (logit.data.dupeready()) {
 
+
+			/* we are making a local copy of dupe data so the
+			 * info doesn't get pulled out from under us.
+			 * since we're async, this created a nasty bug
+			 * in 2023.
+			 *
+			 * If we edited the call before the dupecheck went out
+			 * we might accidentally send invalid data.
+			 */
+
+			let data = [
+				logit.data.call,
+				logit.data.freq,
+				logit.e.mode.value
+			];
+
 			logit.dupelook = setTimeout(function() {
 
 				interact([
 					{
 						cmd: 'dupe',
-						arg: [ 
-							logit.data.call,
-							logit.data.freq,
-							logit.e.mode.value
-						],
+						arg: data,
 						work: logit.dupe_read
 					}
 				]);

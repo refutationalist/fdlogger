@@ -59,6 +59,7 @@ class logrecord {
 
 	dupeready() {
 
+
 		if (
 			this.call != null &&
 			this.mode != null &&

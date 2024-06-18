@@ -171,6 +171,7 @@ DROP VIEW IF EXISTS `fdbymode`;
 DROP VIEW IF EXISTS `fdbycabmode`;
 DROP VIEW IF EXISTS `fdbyzone`;
 DROP VIEW IF EXISTS `fdbyclass`;
+DROP VIEW IF EXISTS `fdbybandmode`;
 
 CREATE VIEW fdlogdisplay AS SELECT
 	'log' AS kind,
@@ -228,3 +229,9 @@ LEFT OUTER JOIN fdlog A ON A.class = B.code
 GROUP BY B.code
 ORDER BY qso DESC;
 
+CREATE VIEW fdbybandmode AS SELECT
+A.band, C.cab, COUNT(A.lid)
+FROM fdlog A
+LEFT JOIN fdband B ON B.code = A.band
+LEFT JOIN fdmode C ON C.code = A.mode
+GROUP BY A.band, C.cab ;
