@@ -1,0 +1,58 @@
+#!/usr/bin/env php
+<?php
+
+const projname = 'loggerlink';
+
+const pharfile = __DIR__."/".projname.".phar";
+
+// add a shebang and make it executable
+// realy only usable for cli-only apps
+const executable = true;
+
+// compress the files
+const compress = true;
+
+if (@$argv[1] == 'projname') {
+	echo projname."\n";
+	exit();
+}
+
+
+if (file_exists(pharfile)) unlink(pharfile);
+
+try {
+	// create phar
+	$phar = new Phar(pharfile);
+
+	// start buffering. Mandatory to modify stub to add shebang
+	$phar->startBuffering();
+
+	// Add the rest of the apps files
+	$phar->buildFromDirectory(__DIR__ . '/src');
+
+	// Create central file router stub
+	$stub = $phar->createDefaultStub('boatload.php');
+
+	// add shebang if executable
+	if (executable) $stub = "#!/usr/bin/env php \n".$stub;
+
+	// Add the stub
+	$phar->setStub($stub);
+
+	// stop loading files
+	$phar->stopBuffering();
+
+	// do compression
+	if (compress) $phar->compressFiles(Phar::GZ);
+
+	// mark executable
+	if (executable) chmod(pharfile, 0770);
+
+
+	printf("%s successfully created\n", pharfile);
+} catch (Exception $e) {
+	printf("build error: %s\n", $e->getMessage());
+
+	exit(1);
+}
+

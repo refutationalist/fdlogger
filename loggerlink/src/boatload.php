@@ -1,5 +1,8 @@
 <?php
 
+const PROJNAME = 'loggerlink';
+const VERSION  = '2024.0';
+
 if (php_sapi_name() != "cli") {
 	echo "{$argv[0]}: cli only.\n";
 	exit(99);
@@ -48,6 +51,9 @@ $args = new loggerlink\naive_getopt();
 
 if ($args->_test("h")) {
 	help();
+} else if ($args->_test("version")) {
+	echo VERSION."\n";
+	exit;
 } else if ($args->_test("f")) {
 	new loggerlink\follower($args);
 } else if ($args->_test("x")) {
@@ -93,7 +99,6 @@ WSJT-X Propagation Monitoring:
 Supplemental Settings:
      -h                  this help
      -v                  print debugging info
-
 
 
 EndHELP;
