@@ -9,9 +9,16 @@ class wsjtx extends loggerlink {
 
 	public function __construct(\loggerlink\naive_getopt $args) {
 
+
+		if (!class_exists("SQLite3")) {
+			echo "{$argv[0]}: requires sqlite3 extension.\n";
+			exit(98);
+		}
+
+
 		$this->options($args);
 		$this->whoami();
-		
+
 		if (!$args->_string("x")) $this->bomb("directory not specified");
 		if (!is_dir($args->x)) $this->bomb("destination not a directory");
 
@@ -79,7 +86,7 @@ class wsjtx extends loggerlink {
 				continue;
 			}
 			$this->debug("section catch: ".join(', ', $section), 2);
-			
+
 
 			// Phase 2: parse mode
 			$this->debug("preparse mode: ".$entry["mode"]);
@@ -92,7 +99,7 @@ class wsjtx extends loggerlink {
 
 			$tolog =  [
 				$entry["call"], // 0
-				(int) $exchange[1], // 1 
+				(int) $exchange[1], // 1
 				$exchange[2], // 2
 				$section[1], // 3
 				(int) $entry["frequency"], // 4

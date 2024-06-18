@@ -8,11 +8,6 @@ if (php_sapi_name() != "cli") {
 	exit(99);
 }
 
-if (!class_exists("SQLite3")) {
-	echo "{$argv[0]}: requires sqlite3 extension.\n";
-	exit(98);
-}
-
 
 spl_autoload_register(function ($class) {
 
