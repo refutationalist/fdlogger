@@ -2,7 +2,7 @@
 
 Run ``make`` to build it.
 
-Okay, I won't pretend this documentation sucks, but it's just for me and my folks, so hey.
+Okay, I won't pretend this documentation doesn't suck, but it's just for me and my folks, so hey.
 
 Here's the help file:
 
@@ -51,4 +51,4 @@ If you add a ``-n``, modulation info will be suppressed.  The follow feature wil
 
 ## WSJT-X Logging
 
-This is going to change before field day.   It works in batch mdoe now.   This is junk.
+This is going to change before field day.   It works in batch mode now.   This is junk.
