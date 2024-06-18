@@ -1,0 +1,9 @@
+## Only if you need a place other than '/etc/logger.ini'
+# server.modules += ( "mod_setenv")
+# setenv.add-environment = ( "LOGGERINI" => "/some/other/path/file.ini" )
+
+server.modules += ( "mod_alias", "mod_redirect" )
+
+url.redirect += ( "/logger$" => "/logger/" )
+alias.url += ( "/logger" => "/usr/share/webapps/logger.phar" )
+
