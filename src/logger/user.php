@@ -117,7 +117,7 @@ class user extends base {
 
 	}
 
-	protected function getdupe(string $call, string|int $freq, string $mode): array|null {
+	protected function getdupe(string $call, string|int $freq, string $mode): null|array {
 		return @$this->fetchall(
 			"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
 			"WHERE csign = '%s' ".
