@@ -11,5 +11,5 @@ clean:
 
 install: $(PROJNAME).phar
 	mkdir -p $(DESTDIR)/usr/bin
-	install -m644 $(PROJNAME).phar $(DESTDIR)/usr/bin/$(PROJNAME)
+	install -m755 $(PROJNAME).phar $(DESTDIR)/usr/bin/$(PROJNAME)
 
