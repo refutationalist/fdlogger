@@ -148,17 +148,22 @@ class httpmode {
 		// This should handle an alias in lighttpd
 
 		if (@$_SERVER["PATH_TRANSLATED"]) {
-			$uri = str_replace(
-				$_SERVER["SCRIPT_NAME"],
+
+			$uri = substr_replace(
+				$_SERVER["REQUEST_URI"],
 				"",
-				$_SERVER["REQUEST_URI"]
+				0,
+				strlen($_SERVER["SCRIPT_NAME"])
 			);
+
 
 			if ($uri == "") $uri = "/";
 
 		} else {
 			$uri = $_SERVER["REQUEST_URI"];
 		}
+
+
 
 		//cleansing of URL
 		$uri = str_replace('/../', '/', strtok($uri ?? "/", '?'));
@@ -207,7 +212,6 @@ class httpmode {
 	public static function send() {
 
 		$file = httpmode::getfile();
-
 
 		if ($file["uri"] == "/api") {
 
