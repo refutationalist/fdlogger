@@ -29,9 +29,3 @@ dev: clean $(PROJNAME).phar
 	echo "If this doesn't work, create a test.ini with a proper database."
 	LOGGERINI=$(shell pwd)/test.ini php -S 0.0.0.0:8000 $(PROJNAME).phar
 
-
-.PHONY: version
-# this is the simplest way to do it.
-# consider better ways, including git.
-version:
-	@cat src/VERSION

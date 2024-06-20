@@ -32,6 +32,9 @@ class user extends base {
 		// test for valid mode
 		if (!$this->inmodes($mode)) return([false, "add: invalid mode"]);
 
+		// check for dupe
+		if (@count((array) $this->getdupe($call, $freq, $mode)) > 0) return([false, "add: this is a dupe"]);
+
 		// notes!
 		$sql_notes = (trim($notes) !== "") ? "'".$this->quote($notes)."'" : 'NULL';
 
@@ -43,7 +46,6 @@ class user extends base {
 
 
 
-		// everything makes sense.   let's go!
 
 		if ($this->query(
 			"INSERT INTO fdlog SET ".
@@ -89,16 +91,7 @@ class user extends base {
 		}
 
 		$rows = $this->fetchall("SELECT * FROM fdlogdisplay" . $post);
-
-		/* FIXME it will actually throw an exception if there's a problem.  no need to test here.
-		if ($rows == false) {
-			return([false, "get: db query error"]);
-		} else {
-		*/
 		return([true, $rows]);
-		// see above }
-
-
 
 	}
 
@@ -114,22 +107,26 @@ class user extends base {
 
 	}
 
-	public function dupe(string $call, string $freq, string $mode): array {
+	public function dupe(string $call, string|int $freq, string $mode): array {
 		$freq = intval($freq);
 
 		return([
 			true,
-			@$this->fetchall(
-				"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
-				"WHERE csign = '%s' ".
-				"AND band = (SELECT code FROM fdband WHERE low <= %d AND high >= %d LIMIT 1) ".
-				"AND mode IN((SELECT code FROM fdmode WHERE cab = (SELECT cab FROM fdmode WHERE code = '%s')))",
-				$this->quote($call),
-				$freq, $freq,
-				$this->quote($mode)
-			)[0]
+			$this->getdupe($call, $freq, $mode)
 		]);
 
+	}
+
+	protected function getdupe(string $call, string|int $freq, string $mode): array|null {
+		return @$this->fetchall(
+			"SELECT csign, exch, mode, logged, band FROM fdlogdisplay ".
+			"WHERE csign = '%s' ".
+			"AND band = (SELECT code FROM fdband WHERE low <= %d AND high >= %d LIMIT 1) ".
+			"AND mode IN((SELECT code FROM fdmode WHERE cab = (SELECT cab FROM fdmode WHERE code = '%s')))",
+			$this->quote($call),
+			$freq, $freq,
+			$this->quote($mode)
+		)[0];
 	}
 
 }

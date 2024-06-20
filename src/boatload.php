@@ -1,8 +1,6 @@
 <?php
 
 /* 0: Options and Defines */
-const PROJECT_ID = 'logger';
-const VERSION    = '2024';
 
 /* 1: SET TIME ZONE */
 date_default_timezone_set("UTC");

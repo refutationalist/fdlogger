@@ -398,6 +398,8 @@ var logit = {
 
 
 	dupe: function(call) {
+		//logit.data.nodupe = true;
+		//return;
 
 		if (logit.dupelook) {
 			clearTimeout(logit.dupelook);

@@ -6,6 +6,8 @@ While that eventually worked, it required a lot of SQL finagling to get the data
 
 For the record: In 2021, I had some brain wrong that made field day kinda hard.
 
+Notably: I hate the name of this repo, and I just think of it as "logger."  I should come up with a better name.
+
 ## How the Logger Works
 
 It's basically a response to things I realized while I was logging FD in 2022.  I would often type my notes in a text editor, and then copy what I copied into the logger.  Based on that, this logger gives the user an open text field.  The parser attempts to figure out the call and exchange from what you type in.  If you add some notes in between square brackets it will include those notes in the log.
@@ -35,7 +37,7 @@ The clients need:
 	  * Run ``extra/callbookgen -o /your/work/dir``
 	  * Wait a minute.
 	  * import /your/work/dir/callbook.sql into the database
-  * run ``make``
+  * run ``make``, ``make install`` will put things into system places
   * use the resultant logger.phar with your webserver
 	  * ``php -S 0.0.0.0:8888 logger.phar`` works
 	  * There is an example config for lighttpd in ``extra/``

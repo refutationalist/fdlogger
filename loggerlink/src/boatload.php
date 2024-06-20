@@ -1,7 +1,5 @@
 <?php
 
-const PROJNAME = 'loggerlink';
-const VERSION  = '2024.0';
 
 if (php_sapi_name() != "cli") {
 	echo "{$argv[0]}: cli only.\n";
@@ -46,9 +44,6 @@ $args = new loggerlink\naive_getopt();
 
 if ($args->_test("h")) {
 	help();
-} else if ($args->_test("version")) {
-	echo VERSION."\n";
-	exit;
 } else if ($args->_test("f")) {
 	new loggerlink\follower($args);
 } else if ($args->_test("x")) {
