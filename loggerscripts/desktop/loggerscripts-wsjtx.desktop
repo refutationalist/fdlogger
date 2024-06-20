@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Exec=/usr/bin/loggerscripts-wsjtx
+Name=Logger WSJT-X Import
+Icon=/usr/share/icons/loggerscripts/loggerscripts-wsjtx.svg

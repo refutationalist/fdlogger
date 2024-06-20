@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+. /usr/share/loggerscripts/fieldday.sh
+
+
+if [ ! -x $RIGCTLD_BIN ]; then
+	echo "$0: $RIGCTLD_BIN is not executable"
+	exit 1;
+fi
+
+CMD="${RIGCTLD_BIN} -m ${RIGCTL_ID} -r ${RIGCTL_PORT} ${RIGCTL_EXTRA}"
+echo "$0: executing '${CMD}'"
+
+doit "$CMD" "Loggerlink: rigctld"
+

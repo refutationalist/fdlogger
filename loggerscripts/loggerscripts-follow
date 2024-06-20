@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+. /usr/share/loggerscripts/fieldday.sh
+
+extra=""
+if [ "$FOLLOW_NOMOD" = "1" ]; then
+	extra="-n"
+fi
+
+cmd="/usr/bin/loggerlink -f -u ${URL} -r ${RADIONAME} -d ${FOLLOW_HOST} ${extra}"
+echo "$0: executing '$cmd'"
+
+doit "$cmd" "Loggerlink: Radio Follow Mode"

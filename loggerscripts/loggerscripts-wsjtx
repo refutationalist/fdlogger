@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+. /usr/share/loggerscripts/fieldday.sh
+
+cmd="/usr/bin/loggerlink -u ${URL} -r ${RADIONAME} -x ${WSJTX_DIR}"
+
+echo "$0: executing '$cmd'"
+
+doit "$cmd" "Loggerlink: WSJT-X Mode"

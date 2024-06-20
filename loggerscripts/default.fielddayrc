@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# This is the name of the radio, or the name of the operator
+# if WSJT-X more or propwatch is enabled
+RADIONAME=hamlet1
+
+# URL for the N9MII Logger
+URL=http://hello.n9mii/logger
+
+### rigctld
+
+# Which binary-- regular or wsjtx variant
+RIGCTLD_BIN=/usr/bin/rigctld-wsjtx
+
+# Radio Model ID -- see rigctl -l
+RIGCTL_ID=1035
+
+# CAT control location
+RIGCTL_PORT=/dev/ttyUSB0
+
+# If I fuck up
+RIGCTL_EXTRA="-vvvv"
+
+### loggerlink follow
+
+FOLLOW_HOST="localhost"
+FOLLOW_NOMOD=0
+
+
+### wsjtxmode
+
+WSJTX_DIR="/home/radio/.local/share/WSJT-X"
+
+# NOTE: Propwatch mode is not supported by these scripts.
+#       Set them up by hand.
+
