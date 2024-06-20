@@ -2,10 +2,14 @@
 
 namespace loggerlink;
 
+const LOG_GOOD = 0;
+const LOG_DUPE = 1;
+const LOG_FAIL = 2;
+
 class wsjtx extends loggerlink {
 	use db;
 	protected string $dir;
-	protected string $errorfile;
+	protected $errorlog; // how the hell do I typehint this?
 
 	public function __construct(\loggerlink\naive_getopt $args) {
 
@@ -22,170 +26,164 @@ class wsjtx extends loggerlink {
 		if (!$args->_string("x")) $this->bomb("directory not specified");
 		if (!is_dir($args->x)) $this->bomb("destination not a directory");
 
-		if (trim(exec("pgrep wsjtx")) != "") $this->bomb("wsjtx is running.");
-
 		$home = getenv('HOME');
 		$this->debug("home: ".$home);
 
-		// manage moving the sqlite file
+		$this->file = $args->x.'/db.sqlite';
+		$this->debug("file: ".$this->file);
 
-		$cachedir = $home . "/.cache/loggerlink";
+		if (!file_exists($this->file)) $this->bomb("no QSO log");
 
-		if (!is_dir($cachedir)) {
-			if (!mkdir($cachedir, 0755, true)) $this->bomb("can't create dir: $cachedir");
-		}
-
-
-		$origfile = $args->x.'/db.sqlite';
-		$this->debug("origfile: ".$origfile);
-		if (!file_exists($origfile)) $this->bomb("no QSO log");
-
-		do {
-			$this->file = $cachedir."/db.sqlite.".time();
-		} while (file_exists($this->file));
-
-		$this->debug("new cache file: {$this->file}");
-
-		if (!rename($origfile, $this->file)) $this->bomb("QSO log move failed");
+		$this->debug("WSJT-X sqlite3 file: {$this->file}");
 
 		// find a blank errorfile
-
 		do {
-			$this->errorfile = $home . "/loggerlink-wsjtx-error-".time().".txt";
-		} while (file_exists($this->errorfile));
-		$this->debug("error file: ".$this->errorfile);
+			$errorfile = $home . "/loggerlink-wsjtx-error-".time().".txt";
+		} while (file_exists($errorfile));
+		$this->debug("error file: ".$errorfile);
+		$this->errorlog = fopen($errorfile, 'w');
+		if ($this->errorlog == false) $this->bomb("can't open error log");
 
 		$this->go();
 
 	}
 
-	public function go() {
-
-		$noparse = [];
-		$failed  = [];
-		$isdupe    = [];
-
-		// just to keep things clean, we want stay connected to the db as little as possible
-		$in = $this->fetchall("SELECT * FROM cabrillo_log_v2");
-
-		$this->debug("new entires: ".count($in));
+	public function __destruct() {
+		fclose($this->errorlog);
+	}
 
 
-		foreach ($in as $entry) {
-			$this->debug("new entry: ".join(', ', $entry));
+	protected function error(string $txt) {
+		fwrite($this->errorlog, "$txt\n");
+		$this->debug($txt);
+	}
 
-			// Phase 1: Parse exchange and section
-			if (!preg_match("/\b([0-9]+)([a-f]b?)\b/i", $entry["exchange_rcvd"], $exchange)) {
-				$noparse[] = $entry;
-				continue;
-			}
-			$this->debug("exchange catch: ".join(', ', $exchange), 2);
+	protected function add_log(entry $e, bool $prechecked = false) {
 
-			if (!preg_match("/\b([a-z]{2,3})\b/i", $entry["exchange_rcvd"], $section)) {
-				$noparse[] = $entry;
-				continue;
-			}
-			$this->debug("section catch: ".join(', ', $section), 2);
-
-
-			// Phase 2: parse mode
-			$this->debug("preparse mode: ".$entry["mode"]);
-			if (in_array($entry['mode'], ['FT8', 'JT8', 'FT4', 'JT65'])) {
-				$mode = $entry['mode'];
-			} else {
-				$mode = 'DIG';
-			}
-			$this->debug("final mode: $mode");
-
-			$tolog =  [
-				$entry["call"], // 0
-				(int) $exchange[1], // 1
-				$exchange[2], // 2
-				$section[1], // 3
-				(int) $entry["frequency"], // 4
-				$mode, // 5
-				$this->name, // 6
-				null, // 7
-				$entry["when"] // 8
-			];
-
-			/*
-			$todupe = [
-				$tolog[0],
-				$tolog[4],
-				$tolog[5]
-			];
-			 */
-
+		if (!$prechecked) {
 			$dupe = $this->call("user", [[
 				'cmd' => 'dupe',
-				//'arg' => $todupe
-				'arg' => [ $tolog[0], $tolog[4], $tolog[5] ]
+				'arg' => $e->dupe()
 			]]);
 
-			if ($dupe[0]->data != true) { // okay, cool, log
-				$result = $this->call('user', [[
-					'cmd' => 'add',
-					'arg' => $tolog
-				]]);
+			if ($dupe[0]->data !== null) {
+				$this->error("dupe found: ". $e->readable());
+				return false;
+			}
+		}
 
-				if ($result[0]->result == true) { // yay, logged
-					echo "New Log: ".join(', ', $tolog)."\n";
-				} else { // oh no, it failed for some reason
-					$failed[] = $entry;
+		$result = $this->call('user', [[
+			'cmd' => 'add',
+			'arg' => $e->to_log($this->name)
+		]]);
+		
+		if ($result[0]->result == true) { // yay, logged
+			echo "New Log: ".$e->readable()."\n";
+		} else { // oh no, it failed for some reason
+			$this->note("Could not log loggable WSJT-X QSO! [".$e->readable()."]");
+		}
+		
+
+	}
+
+	protected function initial_check(): int {
+
+
+		// just to keep things clean, we want stay connected to the db as little as possible
+		$this->debug("beginning intial log check");
+		$in = $this->fetchall("SELECT * FROM cabrillo_log_v2");
+
+		$this->debug("preexisting entires: ".count($in));
+
+		$send = [];
+		$logs = [];
+		$id   = 0;
+
+		
+		foreach ($in as $entry) {
+
+			$e = \loggerlink\entry::from_wsjtxdb($entry);
+
+			if ($e !== null) {
+				$logs[] = $e;
+			} else {
+				$this->error("ERROR, Failed to parse: ".join(', ', $entry));
+			}
+
+			if ($entry["id"] > $id) $id = $entry["id"];
+
+		}
+
+		foreach ($logs as $idx=>$e) {
+			$send[] = ['cmd' => 'dupe', 'arg' => $e->dupe()];
+		}
+
+		$recv = $this->call('user', $send);
+		$dupes = 0;
+
+		if ($recv) {
+
+			foreach ($recv as $idx=>$check) {
+
+				if ($check->data === null) {
+					$this->error("Unlogged Entry Found: ". $logs[$idx]->readable());
+					$this->add_log($logs[$idx], true);
+				} else {
+					$dupes++;
 				}
-			} else {  // make a note for a dupe
-				$isdupe[] = $entry;
+
 			}
 
 		}
 
-		if (count($noparse) > 0 || count($isdupe) > 0 || count($failed) > 0) {
-			$this->debug("there are failed records");
+		$this->debug("initial check complete.  dupes found: ".$dupes.", highest id: ".$id);
+		return $id;
 
 
-			$report = "";
+	}
 
-			if (count($noparse) > 0) {
-				$report .= "[noparse] These records could not be parsed:\n\n";
-				foreach ($noparse as $p) $report .= join(",", $p)."\n";
-				$report .= "\n\n";
+	protected function note(string $intxt) {
+
+		$this->error("POSTED NOTE: $intxt");
+		
+		$errres = $this->call('user', [[
+			'cmd' => 'note',
+			'arg' => [ $intxt, $this->name ]
+		]]);
+
+		if ($errres[0]->result != true)
+			$this->error("WARNING!  Could not post note!  Warn the sysadmin (likely Sam)!");
+	}
+
+	protected function watch(int $id) {
+
+		$this->debug("beginning db watch");
+
+		do {
+			$in = $this->fetchall("SELECT * FROM cabrillo_log_v2 WHERE id > %d", $id);
+			foreach ($in as $entry) {
+
+				$e = \loggerlink\entry::from_wsjtxdb($entry);
+
+				if ($e !== null) {
+					$logs[] = $e;
+				} else {
+					$this->error("ERROR, Failed to parse: ".join(', ', $entry));
+				}
+
+				if ($entry["id"] > $id) $id = $entry["id"];
+
+				$this->add_log($e);
 			}
+			sleep($this->wait);
 
-			if (count($failed) > 0) {
-				$report .= "[failed] These records could not be posted:\n\n";
-				foreach ($failed as $p) $report .= join(",", $p)."\n";
-				$report .= "\n\n";
-			}
-
-			if (count($isdupe) > 0) {
-				$report .= "[dupe] These records are dupes in the log:\n\n";
-				foreach ($isdupe as $p) $report .= join(",", $p)."\n";
-				$report .= "\n\n";
-			}
-
-			echo $report;
-
-			if (!file_put_contents($this->errorfile, $report))
-				echo "Warning!  Could not post error file!  Warn the sysadmin (likely Sam)!\n";
-
-			$notetxt = sprintf(
-				"WSJT-X Error Summary: %d dupes, %d parse failures, %d post failures.  Check error report.",
-				count($isdupe),
-				count($noparse),
-				count($failed)
-			);
+		} while(1);
 
 
-			$errres = $this->call('user', [[
-				'cmd' => 'note',
-				'arg' => [ $notetxt, $this->name ]
-			]]);
+	}
 
-			if ($errres[0]->result != true)
-				echo "Warning!  Could not post note!  Warn the sysadmin (likely Sam)!\n";
-
-		}
+	public function go() {
+		$this->watch($this->initial_check());
 
 	}
 

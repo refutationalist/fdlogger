@@ -7,7 +7,6 @@ class follower extends loggerlink {
 
 	private $s;
 
-	protected int    $wait    = 3;
 	protected bool   $do_mode = true;
 	protected string $host    = 'localhost';
 	protected int    $port    = 4532;
@@ -27,10 +26,6 @@ class follower extends loggerlink {
 
 		}
 		$this->debug("host: $this->host / port: $this->port");
-
-		$this->wait = (int) (@$args->w) ? (int) $args->w : 3;
-		if ($this->wait == 0) $this->bomb("invalid wait time");
-		$this->debug("wait: $this->wait");
 
 		$this->do_mode = !$args->_test("n");
 		$this->debug("send mode: " . (($this->do_mode) ? "YES" : "NO"));

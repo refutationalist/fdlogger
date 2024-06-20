@@ -1,6 +1,5 @@
 <?php
 
-
 if (php_sapi_name() != "cli") {
 	echo "{$argv[0]}: cli only.\n";
 	exit(99);
@@ -41,7 +40,6 @@ spl_autoload_register(function ($class) {
 
 
 $args = new loggerlink\naive_getopt();
-
 if ($args->_test("h")) {
 	help();
 } else if ($args->_test("f")) {
@@ -66,23 +64,19 @@ Required Settings:
 
      -r <name>           the name of your radio in Radio Follow mode
                          or your log handle in the other modes
+Optional Settings:
+     -w <int>            wait <int> seconds between updates defaults to 3
+
 
 Radio Follow Mode:
      -f                  engage follow mode
      -d <host>:<port>    host and port of rigctld server defaults to
                          localhost and 4532
-
-     -w <int>            wait <int> seconds between updates defaults to 3
-
      -n                  do not send modulation information
 
 WSJTX Logging:
      -x <directory>      directory containing contest log for
                          WSJT-X instance
-     -w <int>            wait <int> seconds between checks
-                         defaults to 60
-
-
 WSJT-X Propagation Monitoring:
      -p <directory>      directory containing ALL.TXT for
                          WSJT-X instance

@@ -10,7 +10,8 @@ class loggerlink {
 	protected string $mycall;
 	protected string $myexchange;
 
-	public int $debug = 0;
+	public    int $debug = 0;
+	protected int $wait  = 3;
 
 
 
@@ -31,6 +32,11 @@ class loggerlink {
 		if (!$args->_string("u")) $this->bomb("no logger url");
 		$this->url = $args->u;
 		$this->debug("url: $this->url");
+
+		$this->wait = (int) (@$args->w) ? (int) $args->w : 3;
+		if ($this->wait == 0) $this->bomb("invalid wait time");
+		$this->debug("wait: $this->wait");
+		
 
 		return null;
 		
@@ -84,6 +90,7 @@ class loggerlink {
 			$this->bomb("call to logger has bad response code");
 
 		curl_close($curl);
+
 
 		$rawjson = json_decode($rawtext);
 
