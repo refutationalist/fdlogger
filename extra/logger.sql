@@ -328,3 +328,15 @@ FROM fdlog A
 LEFT JOIN fdband B ON B.code = A.band
 LEFT JOIN fdmode C ON C.code = A.mode
 GROUP BY A.band, C.cab ;
+
+CREATE VIEW fdbycabmode AS 
+SELECT
+COUNT(A.lid) AS qso,
+A.band,
+B.cab AS cabmode
+FROM fdmode B
+LEFT OUTER JOIN fdlog A ON A.mode = B.code
+WHERE A.band != 'none'
+GROUP BY A.band, B.cab
+ORDER BY A.band, B.cab;
+
