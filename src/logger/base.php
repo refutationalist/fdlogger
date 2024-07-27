@@ -156,7 +156,7 @@ class base {
 			true,
 			[
 				"call" => \config::$settings->callsign,
-				"exchange" => \config::$settings->exchange,
+				"exchange" => strtoupper(\config::$settings->tx . \config::$settings->class . '-' . \config::$settings->zone),
 				"debug" => \config::$debug
 			]
 		]);

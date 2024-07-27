@@ -14,6 +14,9 @@ class config {
 	public static array  $modes;
 	public static bool $debug;
 
+	public static object $cabrillo;
+	public static object $club;
+
 	public static function parse() {
 
 		$file = getenv('LOGGERINI') ?: "/etc/logger.ini";
@@ -38,9 +41,38 @@ class config {
 		@config::$db       = (object) $raw["db"];
 		@config::$debug    = (bool) $raw["settings"]["debug"] ?: false;
 
-		@config::$settings->callsign    = (string) $raw["settings"]["callsign"]   ?: "N0CALL";
-		@config::$settings->exchange    = (string) $raw["settings"]["exchange"]   ?: "0D-DX";
-		@config::$settings->radiopurge  = (int)    $raw["settings"]["radiopurge"] ?: 300;
+		@config::$settings->callsign    = (string) $raw["settings"]["callsign"] ?: "N0CALL";
+		@config::$settings->tx          = (int)    $raw["settings"]["tx"]       ?: 0;
+		@config::$settings->class       = (string) $raw["settings"]["class"]    ?: "D";
+		@config::$settings->zone        = (string) $raw["settings"]["zone"]     ?: "DX";
+		@config::$settings->radiopurge  = (int) $raw["settings"]["radiopurge"] ?: 300;
+
+
+		// Cabrillo Stuff
+		config::$cabrillo = new stdClass();
+		@config::$cabrillo->band =     (string) $raw["cabrillo"]["band"]     ?: "ALL";
+		@config::$cabrillo->mode =     (string) $raw["cabrillo"]["mode"]     ?: "MIXED";
+		@config::$cabrillo->operator = (string) $raw["cabrillo"]["operator"] ?: "MULTI-OP";
+		@config::$cabrillo->power =    (string) $raw["cabrillo"]["power"]    ?: "LOW";
+		@config::$cabrillo->station =  (string) $raw["cabrillo"]["station"]  ?: "PORTABLE";
+
+		// club stuff
+		$club = [];
+		foreach (['club', 'name', 'address', 'city', 'state', 'zip', 'country', 'email', 'operators', 'soapbox'] as $f) $club[$f] = "";
+
+		foreach ($raw["club"] as $idx=>$value) {
+			$value = (string) $value;
+
+			if ($value == '') continue;
+			if ($club[$idx] != '') continue;
+
+			$club[$idx] = $value;
+
+		}
+
+		@config::$club = (object) $club;
+
+		
 
 	}
 
@@ -52,6 +84,14 @@ class config {
 
 		echo "\n\nSETTINGS: ";
 		print_r(config::$settings);
+
+		echo "\n\nCABRILLO: ";
+		print_r(config::$cabrillo);
+
+		echo "\n\nCLUB: ";
+		print_r(config::$club);
+		
+		
 	}
 
 }
@@ -102,8 +142,7 @@ class logger_exception extends Exception { }
 
 
 /* 5: CLI Handling */
-
-if (php_sapi_name() == "cli") {
+if (php_sapi_name() == "cli" && getenv('DEBUG') == 'yep') {
 	echo "http mode only\n";
 	exit(0);
 }
